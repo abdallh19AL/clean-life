@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/utils/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingBag, MessageCircle } from 'lucide-react'; // تأكد من تنبيهي إذا ما عندك lucide-react
+import { Search, ShoppingBag, MessageCircle } from 'lucide-react'; 
 
 export default function StorePage() {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("الكل");
@@ -44,7 +44,7 @@ export default function StorePage() {
     </div>
   );
 
-  const categories = ["الكل", ...new Set(products.map(p => p.category))];
+  const categories = ["الكل", ...Array.from(new Set(products.map(p => p.category)))];
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] pb-20 text-right" dir="rtl">
@@ -115,7 +115,10 @@ export default function StorePage() {
                     <span className="text-2xl font-black text-slate-900">{product.price} <span className="text-sm">JOD</span></span>
                   </div>
                   <a 
-                    href={`https://wa.me/962XXXXXXXXX?text=${encodeURIComponent(`مرحباً حياة أنظف، أريد طلب: ${product.name}`)}`}
+                    /* 👇👇 تم تعديل الرابط هنا، يرجى استبدال الرقم 962790000000 برقمك الفعلي 👇👇 */
+                    href={`https://wa.me/962785229462?text=${encodeURIComponent(`مرحباً حياة أنظف، أريد طلب: ${product.name}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-2xl font-black transition-all"
                   >
                     <span>اطلب الآن</span>

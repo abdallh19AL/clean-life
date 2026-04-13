@@ -87,7 +87,7 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }} className="flex-1 w-full relative">
           <div className="absolute inset-0 bg-sky-100 dark:bg-sky-900/20 rounded-[3rem] -rotate-3 scale-105 opacity-50"></div>
           <img 
-            src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop" 
+            src="https://i.pinimg.com/736x/ba/35/53/ba355354c5189738d1715fa96cb813c4.jpg" 
             alt="الهدوء والوضوح العقلي" 
             className="relative rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 object-cover h-[500px] w-full transition-colors duration-500"
           />

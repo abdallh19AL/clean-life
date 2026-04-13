@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -14,7 +15,8 @@ function ContentRenderer({ blocks }: { blocks: any[] }) {
           case 'quote':
             return <motion.blockquote key={index} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="my-12 p-8 bg-sky-50 rounded-2xl border-r-4 border-sky-500 font-bold text-2xl text-sky-800 italic relative shadow-inner"><span className="absolute -top-6 -right-6 text-9xl text-sky-200 opacity-50">"</span>{block.text}</motion.blockquote>;
           case 'heading':
-            const HeadingTag = `h${block.level}` as keyof JSX.IntrinsicElements;
+            // هنا تم حل مشكلة التايب سكريبت بإضافة React.JSX
+            const HeadingTag = `h${block.level}` as keyof React.JSX.IntrinsicElements;
             return <motion.div key={index} initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className={`text-gray-900 font-black mb-6 mt-16 ${block.level === 2 ? 'text-4xl' : 'text-3xl'}`}><HeadingTag>{block.text}</HeadingTag></motion.div>;
           case 'image':
             return <motion.figure key={index} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="my-16 flex flex-col items-center"><img src={block.url} alt={block.caption} className="rounded-3xl shadow-xl w-full h-[450px] object-cover border-4 border-white" />{block.caption && <figcaption className="mt-4 text-center text-gray-500 font-medium">{block.caption}</figcaption>}</motion.figure>;

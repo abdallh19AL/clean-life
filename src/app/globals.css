@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* هذا السطر هو الذي يجبر النظام على طاعة زر الوضع الليلي */
+@custom-variant dark (&:where(.dark, .dark *));

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "next/navigation";
 import { BarChart3, Target, Banknote, ShieldCheck, LogOut, CheckCircle2, Circle, Loader2 } from "lucide-react";
@@ -12,8 +12,19 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState<any[]>([]);
   const router = useRouter();
 
-  // 1. دالة جلب المهام من قاعدة البيانات
+  // 1. دالة جلب المهام من قاعدة البيانات (مع التصفير التلقائي)
   const fetchTasks = useCallback(async (userId: string) => {
+    // 👈 التعديل السحري: فحص اليوم الجديد وتصفير المهام
+    const today = new Date().toDateString();
+    const lastReset = localStorage.getItem(`tasks_reset_${userId}`);
+
+    if (lastReset !== today) {
+      // إزالة علامة الصح من جميع المهام في قاعدة البيانات لهذا المستخدم
+      await supabase.from('tasks').update({ is_completed: false }).eq('user_id', userId);
+      // حفظ تاريخ اليوم لمنع التصفير مرة أخرى في نفس اليوم
+      localStorage.setItem(`tasks_reset_${userId}`, today);
+    }
+
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
@@ -22,7 +33,6 @@ export default function Dashboard() {
     
     if (!error && data) {
       if (data.length === 0) {
-        // إذا كان المستخدم جديداً، نعطيه مهام افتراضية ونحفظها له
         const defaultTasks = [
           { user_id: userId, text: "قراءة 10 صفحات من كتاب ملهم", is_completed: false },
           { user_id: userId, text: "تمرين رياضي مكثف", is_completed: false },

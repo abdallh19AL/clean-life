@@ -53,21 +53,21 @@ export default function RecoveryJournal() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-gray-100"
+        className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-xl border border-gray-100 dark:border-slate-800 transition-colors duration-300"
       >
-        <h3 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-2">
+        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2 transition-colors">
           <span>📓</span> يومياتك اليوم
         </h3>
         <textarea
           value={newEntry}
           onChange={(e) => setNewEntry(e.target.value)}
           placeholder="كيف تشعر اليوم؟ ما الذي تعلمته؟"
-          className="w-full h-32 p-6 bg-slate-50 border border-gray-100 rounded-3xl focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all resize-none text-gray-700 leading-relaxed"
+          className="w-full h-32 p-6 bg-slate-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 rounded-3xl focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition-all resize-none text-gray-700 dark:text-slate-200 dark:placeholder-slate-500 leading-relaxed"
         />
         <button
           onClick={handleSave}
           disabled={!newEntry.trim()}
-          className="w-full mt-4 py-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-lg shadow-sky-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full mt-4 py-4 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-2xl shadow-lg shadow-sky-500/20 dark:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           حفظ التدوينة
         </button>
@@ -75,10 +75,10 @@ export default function RecoveryJournal() {
 
       {/* قائمة التدوينات */}
       <div className="space-y-6">
-        <h4 className="text-lg font-bold text-gray-500 px-4">التدوينات السابقة</h4>
+        <h4 className="text-lg font-bold text-gray-500 dark:text-slate-400 px-4 transition-colors">التدوينات السابقة</h4>
         <AnimatePresence>
           {entries.length === 0 ? (
-            <p className="text-center text-gray-400 py-10 bg-white/50 rounded-[2rem] border-2 border-dashed border-gray-200">
+            <p className="text-center text-gray-400 dark:text-slate-500 py-10 bg-white/50 dark:bg-slate-900/50 rounded-[2rem] border-2 border-dashed border-gray-200 dark:border-slate-800 transition-colors">
               لا توجد تدوينات بعد. ابدأ بكتابة ما يدور في ذهنك.
             </p>
           ) : (
@@ -88,21 +88,21 @@ export default function RecoveryJournal() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 group relative"
+                className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 group relative transition-colors duration-300"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <span className="text-xs font-bold text-sky-500 bg-sky-50 px-3 py-1 rounded-full">
+                  <span className="text-xs font-bold text-sky-500 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/30 px-3 py-1 rounded-full transition-colors">
                     {entry.date}
                   </span>
                   <button 
                     onClick={() => deleteEntry(entry.id)}
-                    className="text-gray-300 hover:text-red-500 transition-colors"
+                    className="text-gray-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                     title="حذف التدوينة"
                   >
                     ✕
                   </button>
                 </div>
-                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap font-medium">
+                <p className="text-gray-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap font-medium transition-colors">
                   {entry.text}
                 </p>
               </motion.div>

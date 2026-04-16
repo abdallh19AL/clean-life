@@ -37,7 +37,8 @@ export default function LoginPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        // 👈 التعديل السحري: خليناه يوجه لصفحة الـ Dashboard مباشرة
+        emailRedirectTo: `${window.location.origin}/dashboard`,
       },
     });
 

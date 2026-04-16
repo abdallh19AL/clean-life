@@ -1,18 +1,38 @@
-"use client"
+import type { Metadata, Viewport } from "next";
+import { Cairo } from "next/font/google";
+import "./globals.css"; // 👈 هذا السطر هو اللي بيرجع الألوان والتنسيقات للموقع
+import ThemeProvider from "@/components/ThemeProvider";
+import Navbar from "@/components/Navbar";
+import ThemeToggle from "@/components/ThemeToggle";
 
-import * as React from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { type ThemeProviderProps } from "next-themes/dist/types"
+const cairo = Cairo({ subsets: ["arabic"] });
 
-export default function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export const metadata: Metadata = {
+  title: "حياة أنظف | مساحتك للتعافي",
+  description: "دليلك العملي لصيام الدوبامين والتخلص من العادات السلبية",
+  manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0ea5e9",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <NextThemesProvider 
-      attribute="class"      // 👈 هاد السطر هو "مفتاح الحل"
-      defaultTheme="dark"    // خليه يبلش بالوضع الليلي افتراضياً
-      enableSystem={true}    // عشان يتبع نظام الجهاز إذا بدك
-      {...props}
-    >
-      {children}
-    </NextThemesProvider>
-  )
+    <html lang="ar" dir="rtl" suppressHydrationWarning>
+      <body className={`${cairo.className} bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-50 transition-colors duration-300`}>
+        <ThemeProvider>
+          <Navbar /> 
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <ThemeToggle />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
 }

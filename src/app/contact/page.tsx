@@ -89,18 +89,18 @@ const contactCards = [
   {
     Icon: MessageCircle,
     label: "واتساب",
-    value: "+962 79 000 0000",
+    value: "+962 85 229 462",
     color: "#25D366",
     bg: "rgba(37,211,102,0.08)",
-    href: "https://wa.me/96279000000",
+    href: "https://wa.me/96285229462",
   },
   {
     Icon: Mail,
     label: "البريد الإلكتروني",
-    value: "info@cleanlife.top",
+    value: "cleanlifetopjo@gmail.com",
     color: "#3D7A5E",
     bg: "rgba(61,122,94,0.08)",
-    href: "mailto:info@cleanlife.top",
+    href: "mailto:cleanlifetopjo@gmail.com",
   },
   {
     Icon: Clock,
@@ -204,10 +204,21 @@ export default function ContactPage() {
     e.preventDefault();
     if (!name || !email || !message) return;
     setLoading(true);
+
+    const subject = encodeURIComponent(`استفسار من ${name} - ${inquiry || "عام"}`);
+    const body = encodeURIComponent(
+      `الاسم: ${name}\n` +
+      `البريد الإلكتروني: ${email}\n` +
+      `رقم الهاتف: ${phone || "غير محدد"}\n` +
+      `نوع الاستفسار: ${inquiry || "غير محدد"}\n\n` +
+      `الرسالة:\n${message}`
+    );
+    window.location.href = `mailto:cleanlifetopjo@gmail.com?subject=${subject}&body=${body}`;
+
     setTimeout(() => {
       setLoading(false);
       setSubmitted(true);
-    }, 1200);
+    }, 800);
   }
 
   const CARD: React.CSSProperties = {

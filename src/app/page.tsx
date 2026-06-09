@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import {
   motion,
+  AnimatePresence,
   useScroll,
   useTransform,
   useMotionValue,
@@ -11,9 +12,11 @@ import {
   useInView,
 } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Star, Users, TrendingUp, Clock, Headphones,
   Activity, Dumbbell, Apple, BookOpen, Heart,
+  X, Volume2, VolumeX, Sparkles,
 } from "lucide-react";
 
 /* ─── Data ───────────────────────────────────────────────────────────────── */
@@ -198,6 +201,18 @@ const inView = (delay = 0) => ({
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 export default function Home() {
+  const router = useRouter();
+
+  /* Modal state */
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [muted, setMuted] = useState(true);
+
+  /* Lock body scroll while any modal is open */
+  useEffect(() => {
+    document.body.style.overflow = aboutOpen || videoOpen ? "hidden" : "auto";
+    return () => { document.body.style.overflow = "auto"; };
+  }, [aboutOpen, videoOpen]);
 
   /* Dashboard 3-D scroll effect */
   const dashboardRef = useRef<HTMLDivElement>(null);
@@ -659,32 +674,36 @@ export default function Home() {
               رحلتك تبدأ بخطوة واحدة.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}>
+              {/* BUTTON 1 → opens video modal */}
               <MagneticButton>
-                <Link
-                  href="/dashboard"
+                <button
+                  onClick={() => setVideoOpen(true)}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "16px 32px", borderRadius: 18, textDecoration: "none",
+                    padding: "16px 32px", borderRadius: 18,
                     backgroundColor: "white", color: "#064E3B", fontWeight: 700, fontSize: 17,
                     boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+                    border: "none", cursor: "pointer", fontFamily: "inherit",
                   }}
                 >
-                  احجز استشارتك المجانية
+                  ابدأ رحلتك
                   <ArrowLeft style={{ width: 20, height: 20 }} />
-                </Link>
+                </button>
               </MagneticButton>
+              {/* BUTTON 2 → opens about modal */}
               <MagneticButton>
-                <Link
-                  href="/dashboard"
+                <button
+                  onClick={() => setAboutOpen(true)}
                   style={{
                     display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "16px 32px", borderRadius: 18, textDecoration: "none",
+                    padding: "16px 32px", borderRadius: 18,
                     color: "white", fontWeight: 700, fontSize: 17,
                     border: "2px solid rgba(255,255,255,0.45)",
+                    backgroundColor: "transparent", cursor: "pointer", fontFamily: "inherit",
                   }}
                 >
-                  اعرف المزيد
-                </Link>
+                  تعرف علينا
+                </button>
               </MagneticButton>
             </div>
           </div>
@@ -712,6 +731,262 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 1 — About Us
+      ══════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {aboutOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => setAboutOpen(false)}
+            style={{
+              position: "fixed", inset: 0,
+              backgroundColor: "rgba(20,30,25,0.55)",
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              zIndex: 200,
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: 540, width: "90%",
+                backgroundColor: "#F8F5F0",
+                borderRadius: 24, padding: 40,
+                boxShadow: "0 30px 80px rgba(0,0,0,0.25)",
+                position: "relative",
+                direction: "rtl",
+                fontFamily: "'Cairo','Segoe UI',sans-serif",
+              }}
+            >
+              {/* Close */}
+              <button
+                onClick={() => setAboutOpen(false)}
+                style={{
+                  position: "absolute", top: 16, left: 16,
+                  width: 32, height: 32, borderRadius: "50%",
+                  backgroundColor: "rgba(190,175,155,0.20)",
+                  border: "none", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "background 0.15s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(190,175,155,0.40)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(190,175,155,0.20)")}
+              >
+                <X size={16} color="#888" />
+              </button>
+
+              {/* Icon */}
+              <div style={{
+                width: 56, height: 56, borderRadius: "50%",
+                background: "linear-gradient(135deg, #2D6A4F, #52B788)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto",
+                boxShadow: "0 6px 20px rgba(45,106,79,0.30)",
+              }}>
+                <Sparkles size={24} color="white" />
+              </div>
+
+              {/* Title */}
+              <h2 style={{
+                fontSize: 26, fontWeight: 900, color: "#1A2E22",
+                textAlign: "center", marginTop: 16, marginBottom: 6,
+              }}>
+                عيادة Clean Life
+              </h2>
+
+              {/* Subtitle */}
+              <p style={{
+                color: "#7AA090", fontSize: 13,
+                letterSpacing: "0.15em", textTransform: "uppercase" as const,
+                textAlign: "center", marginBottom: 24,
+              }}>
+                رؤيتنا ورسالتنا
+              </p>
+
+              {/* Body */}
+              <p style={{
+                fontSize: 15, color: "#4A6B5C", lineHeight: 1.9,
+                textAlign: "center", marginBottom: 28,
+              }}>
+                عيادة Clean Life: هدفنا هو إعادة صياغة نمط حياتك للأفضل، ومساعدتك على التخلص من
+                العادات السلبية وبناء جسد قوي وعقل سليم.
+              </p>
+
+              {/* Feature pills */}
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 28, flexWrap: "wrap" as const }}>
+                {["خبرة طبية", "متابعة شخصية", "نتائج علمية"].map((pill) => (
+                  <span
+                    key={pill}
+                    style={{
+                      padding: "6px 16px", borderRadius: 999,
+                      backgroundColor: "rgba(61,122,94,0.10)",
+                      color: "#2D6A4F", fontSize: 13, fontWeight: 700,
+                      border: "1px solid rgba(61,122,94,0.20)",
+                    }}
+                  >
+                    {pill}
+                  </span>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <button
+                onClick={() => { setAboutOpen(false); setVideoOpen(true); }}
+                style={{
+                  width: "100%", padding: "14px 24px", borderRadius: 14,
+                  backgroundColor: "transparent",
+                  border: "2px solid #2D6A4F",
+                  color: "#2D6A4F", fontWeight: 700, fontSize: 15,
+                  fontFamily: "inherit", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  gap: 8, transition: "background 0.2s",
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(61,122,94,0.08)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent")}
+              >
+                ابدأ رحلتك معنا ←
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ══════════════════════════════════════════════════════════════
+          MODAL 2 — Cinematic Video
+      ══════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {videoOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: "fixed", inset: 0,
+              backgroundColor: "rgba(0,0,0,0.92)",
+              zIndex: 300,
+              display: "flex", flexDirection: "column" as const,
+              alignItems: "center", justifyContent: "center",
+              direction: "rtl",
+              fontFamily: "'Cairo','Segoe UI',sans-serif",
+            }}
+          >
+            {/* Close — top left */}
+            <button
+              onClick={() => setVideoOpen(false)}
+              style={{
+                position: "absolute", top: 24, left: 24,
+                width: 40, height: 40, borderRadius: "50%",
+                backgroundColor: "rgba(255,255,255,0.10)",
+                border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "background 0.15s", zIndex: 10,
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.20)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.10)")}
+            >
+              <X size={20} color="white" />
+            </button>
+
+            {/* Mute toggle — top right */}
+            <button
+              onClick={() => setMuted(v => !v)}
+              style={{
+                position: "absolute", top: 24, right: 24,
+                width: 40, height: 40, borderRadius: "50%",
+                backgroundColor: "rgba(255,255,255,0.10)",
+                border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "background 0.15s", zIndex: 10,
+              }}
+              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.20)")}
+              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.10)")}
+            >
+              {muted ? <VolumeX size={20} color="white" /> : <Volume2 size={20} color="white" />}
+            </button>
+
+            {/* Video container */}
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                width: "90%", maxWidth: 900,
+                aspectRatio: "16 / 9",
+                borderRadius: 16, overflow: "hidden",
+                position: "relative",
+                boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
+              }}
+            >
+              <video
+                src="/videos/motivation.mp4"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                autoPlay
+                loop
+                muted={muted}
+                playsInline
+              />
+
+              {/* Gradient overlay */}
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
+                background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+                pointerEvents: "none",
+              }} />
+
+              {/* Text overlay */}
+              <div style={{
+                position: "absolute", bottom: 40, left: "50%",
+                transform: "translateX(-50%)",
+                textAlign: "center", zIndex: 2,
+                width: "100%",
+              }}>
+                <p style={{
+                  color: "rgba(255,255,255,0.7)",
+                  letterSpacing: "0.2em", fontSize: 12, fontWeight: 600,
+                }}>
+                  ابدأ رحلة التحول
+                </p>
+                <p style={{
+                  fontSize: 32, fontWeight: 900, color: "white", marginTop: 8,
+                }}>
+                  حياتك تبدأ الآن
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Skip to dashboard button */}
+            <div style={{ marginTop: 24 }}>
+              <MagneticButton>
+                <button
+                  onClick={() => router.push("/dashboard")}
+                  style={{
+                    padding: "14px 28px", borderRadius: 16,
+                    backgroundColor: "white", color: "#1B4332",
+                    fontWeight: 700, fontSize: 16,
+                    border: "none", cursor: "pointer",
+                    fontFamily: "inherit",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.30)",
+                  }}
+                >
+                  تخطي إلى لوحة التحكم ←
+                </button>
+              </MagneticButton>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -17,7 +17,7 @@ import {
   ArrowLeft, Star, Users, TrendingUp, Clock, Headphones,
   Activity, Dumbbell, Apple, BookOpen, Heart,
   X, Volume2, VolumeX, Sparkles,
-  Home, ShoppingBag, Calculator, HeartPulse,
+  Home as HomeIcon, ShoppingBag, Calculator, HeartPulse,
 } from "lucide-react";
 
 /* ─── Data ───────────────────────────────────────────────────────────────── */
@@ -196,7 +196,7 @@ const inView = (delay = 0) => ({
 /* ─── Landing Navbar ─────────────────────────────────────────────────────── */
 
 const NAV_LINKS = [
-  { href: "/",           label: "الرئيسية",      Icon: Home        },
+  { href: "/",           label: "الرئيسية",      Icon: HomeIcon    },
   { href: "/store",      label: "المتجر",         Icon: ShoppingBag },
   { href: "/calculator", label: "حاسبة السعرات", Icon: Calculator  },
 ];

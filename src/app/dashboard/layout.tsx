@@ -14,11 +14,11 @@ import {
 } from "lucide-react";
 
 const navLinks = [
-  { href: "/dashboard",              label: "نظرة عامة",      icon: LayoutDashboard },
-  { href: "/dashboard/progress",     label: "متابعة التقدم",  icon: TrendingUp      },
-  { href: "/dashboard/diet",         label: "الخطة الغذائية", icon: Utensils        },
-  { href: "/dashboard/training",     label: "جدول التدريب",   icon: Dumbbell        },
-  { href: "/dashboard/appointments", label: "المواعيد",        icon: CalendarDays    },
+  { href: "/dashboard",                  label: "نظرة عامة",      icon: LayoutDashboard },
+  { href: "/dashboard/progress",         label: "متابعة التقدم",  icon: TrendingUp      },
+  { href: "/dashboard/nutrition",        label: "الخطة الغذائية", icon: Utensils        },
+  { href: "/dashboard/workout",          label: "جدول التدريب",   icon: Dumbbell        },
+  { href: "/dashboard/appointments",     label: "المواعيد",        icon: CalendarDays    },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

@@ -225,8 +225,8 @@ function TopNavbar() {
 
               <div style={{ height: 1, background: "rgba(190,175,155,0.20)", margin: "4px 0 6px" }} />
 
-              <DropdownItem icon={User}     label="الملف الشخصي" href="/dashboard"  onClick={() => setIsOpen(false)} />
-              <DropdownItem icon={Settings} label="الإعدادات"     href="/dashboard"  onClick={() => setIsOpen(false)} />
+              <DropdownItem icon={User}     label="الملف الشخصي" href="/dashboard"           onClick={() => setIsOpen(false)} />
+              <DropdownItem icon={Settings} label="الإعدادات"     href="/dashboard/settings" onClick={() => setIsOpen(false)} />
 
               <div style={{ height: 1, background: "rgba(190,175,155,0.20)", margin: "6px 0" }} />
 

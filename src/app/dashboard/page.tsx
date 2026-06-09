@@ -136,6 +136,112 @@ function QuickActionButton({
   );
 }
 
+// ─── Performance card ─────────────────────────────────────────────────────────
+
+const METRICS = [
+  { label: "الالتزام بالتمارين",  pct: 80, color: "#3D7A5E",  bg: "rgba(61,122,94,0.12)"   },
+  { label: "الالتزام بالتغذية",   pct: 65, color: "#5B8CBF",  bg: "rgba(91,140,191,0.12)"  },
+  { label: "شرب الماء",           pct: 50, color: "#06B6D4",  bg: "rgba(6,182,212,0.12)"   },
+  { label: "جودة النوم",          pct: 75, color: "#7E57C2",  bg: "rgba(126,87,194,0.12)"  },
+  { label: "مستوى النشاط",        pct: 90, color: "#E07A5F",  bg: "rgba(224,122,95,0.12)"  },
+];
+
+function AnimatedBar({ pct, color, bg }: { pct: number; color: string; bg: string }) {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(pct), 120);
+    return () => clearTimeout(t);
+  }, [pct]);
+  return (
+    <div style={{ height: 8, borderRadius: 999, backgroundColor: bg, overflow: "hidden", flex: 1 }}>
+      <div
+        style={{
+          height: "100%", borderRadius: 999, backgroundColor: color,
+          width: `${width}%`, transition: "width 1s cubic-bezier(0.4,0,0.2,1)",
+        }}
+      />
+    </div>
+  );
+}
+
+function PerformanceCard() {
+  const avg = Math.round(METRICS.reduce((s, m) => s + m.pct, 0) / METRICS.length);
+  const rating =
+    avg >= 80 ? { label: "ممتاز", icon: "🌟", color: "#3D7A5E", bg: "rgba(61,122,94,0.10)" } :
+    avg >= 60 ? { label: "جيد",   icon: "✅", color: "#5B8CBF", bg: "rgba(91,140,191,0.10)" } :
+                { label: "يحتاج تحسين", icon: "⚠️", color: "#E07A5F", bg: "rgba(224,122,95,0.10)" };
+
+  const msg =
+    avg >= 80 ? "أداؤك رائع هذا الأسبوع! استمر على هذا المسار المتميز 💪" :
+    avg >= 60 ? "أداء جيد! ركّز أكثر على شرب الماء والنوم الجيد 🎯"          :
+                "لا بأس! كل يوم فرصة جديدة للتحسن. ابدأ بخطوة صغيرة 🌱";
+
+  return (
+    <motion.div
+      variants={fadeUp}
+      initial="hidden"
+      animate="visible"
+      transition={{ delay: 0.55, duration: 0.45, ease: "easeOut" }}
+      style={{
+        background:   "rgba(255,255,255,0.92)",
+        border:       "1.5px solid rgba(190,175,155,0.20)",
+        borderRadius: 22,
+        padding:      "30px 32px",
+        boxShadow:    "0 2px 14px rgba(0,0,0,0.055)",
+      }}
+    >
+      {/* Header row */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <h2 style={{ color: "#1a1a1a", fontSize: 19, fontWeight: 900 }}>
+          تقييم أدائك هذا الأسبوع 📊
+        </h2>
+        <div style={{
+          padding: "6px 16px", borderRadius: 999,
+          backgroundColor: rating.bg,
+          color: rating.color, fontSize: 13, fontWeight: 900,
+          display: "flex", alignItems: "center", gap: 6,
+          border: `1.5px solid ${rating.color}30`,
+        }}>
+          {rating.icon} {rating.label}
+        </div>
+      </div>
+
+      {/* Metrics */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 22 }}>
+        {METRICS.map(({ label, pct, color, bg }) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#555", width: 168, flexShrink: 0, textAlign: "right" }}>
+              {label}
+            </span>
+            <AnimatedBar pct={pct} color={color} bg={bg} />
+            <span style={{ fontSize: 13, fontWeight: 900, color, width: 36, textAlign: "left", flexShrink: 0 }}>
+              {pct}٪
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Avg + message */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 16,
+        padding: "14px 18px", borderRadius: 14,
+        backgroundColor: rating.bg,
+        border: `1.5px solid ${rating.color}25`,
+      }}>
+        <div style={{
+          width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+          backgroundColor: `${rating.color}20`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 14, fontWeight: 900, color: rating.color,
+        }}>
+          {avg}٪
+        </div>
+        <p style={{ fontSize: 13, color: "#555", fontWeight: 700, lineHeight: 1.7 }}>{msg}</p>
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
@@ -453,6 +559,7 @@ export default function DashboardPage() {
         initial="hidden"
         animate="visible"
         transition={{ delay: 0.42, duration: 0.45, ease: "easeOut" }}
+        style={{ marginBottom: 24 }}
       >
         <div
           style={{
@@ -481,6 +588,9 @@ export default function DashboardPage() {
           </motion.div>
         </div>
       </motion.div>
+
+      {/* ── E: Weekly performance tracker ── */}
+      <PerformanceCard />
     </div>
   );
 }

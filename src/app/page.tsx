@@ -746,8 +746,8 @@ export default function Home() {
             </div>
             <div style={{ display: "flex", gap: 24, fontSize: 14, fontWeight: 500 }}>
               <Link href="/dashboard" style={{ color: "#A8A29E", textDecoration: "none" }}>لوحة التحكم</Link>
-              <Link href="/dashboard" style={{ color: "#A8A29E", textDecoration: "none" }}>الخدمات</Link>
-              <Link href="/dashboard" style={{ color: "#A8A29E", textDecoration: "none" }}>تواصل معنا</Link>
+              <Link href="/services" style={{ color: "#A8A29E", textDecoration: "none" }}>الخدمات</Link>
+              <Link href="/contact" style={{ color: "#A8A29E", textDecoration: "none" }}>تواصل معنا</Link>
             </div>
           </div>
           <div style={{ marginTop: 32, paddingTop: 24, textAlign: "center", fontSize: 14, borderTop: "1px solid #292524" }}>

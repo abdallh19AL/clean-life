@@ -116,6 +116,17 @@ function TopNavbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Redirect to login on session expiry or sign-out
+  useEffect(() => {
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
+        router.push("/login");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();

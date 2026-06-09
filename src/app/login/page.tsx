@@ -1,118 +1,335 @@
 "use client";
+
 import { useState } from "react";
-import { supabase } from "@/utils/supabase";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { createClient } from "@/utils/supabase/client";
 
+/* ─── Inline Google G icon ─────────────────────────────────────────── */
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908C16.658 14.252 17.64 11.944 17.64 9.2Z"
+        fill="#4285F4"
+      />
+      <path
+        d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z"
+        fill="#34A853"
+      />
+      <path
+        d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58Z"
+        fill="#EA4335"
+      />
+    </svg>
+  );
+}
+
+/* ─── Controlled input with teal focus ring ────────────────────────── */
+function FormInput({
+  type, placeholder, value, onChange,
+}: {
+  type:        "email" | "password";
+  placeholder: string;
+  value:       string;
+  onChange:    (v: string) => void;
+}) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <input
+      type={type}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onFocus={() => setFocused(true)}
+      onBlur={()  => setFocused(false)}
+      style={{
+        width:           "100%",
+        padding:         "12px 16px",
+        borderRadius:    12,
+        border:          `1.5px solid ${focused ? "#3D7A5E" : "rgba(190,175,155,0.4)"}`,
+        backgroundColor: focused ? "#FAFAF8" : "#FCFAF6",
+        fontSize:        "0.95rem",
+        fontFamily:      "inherit",
+        color:           "#1A2E22",
+        outline:         "none",
+        transition:      "border-color 0.2s, background-color 0.2s",
+        boxSizing:       "border-box",
+        boxShadow:       focused ? "0 0 0 3px rgba(61,122,94,0.10)" : "none",
+      }}
+    />
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────────── */
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
   const router = useRouter();
+  const [email,      setEmail]      = useState("");
+  const [password,   setPassword]   = useState("");
+  const [isPending,  setIsPending]  = useState(false);
+  const [error,      setError]      = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setMessage("خطأ في تسجيل الدخول: " + error.message);
+    setIsPending(true);
+    setError("");
+    const supabase = createClient();
+    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError) {
+      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      setIsPending(false);
     } else {
       router.push("/dashboard");
     }
-    setLoading(false);
   };
 
-  const handleSignUp = async () => {
-    setLoading(true);
-    setMessage("");
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
+  const handleGoogleLogin = async () => {
+    setIsPending(true);
+    setError("");
+    const supabase = createClient();
+    // ?next=/dashboard tells the callback route where to land after code exchange.
+    // Also add http://localhost:3000/auth/callback to Supabase → Auth → Redirect URLs.
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
       options: {
-        // 👈 التعديل السحري: خليناه يوجه لصفحة الـ Dashboard مباشرة
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
       },
     });
-
-    if (error) {
-      setMessage("خطأ في إنشاء الحساب: " + error.message);
-    } else {
-      setMessage("تم إرسال رسالة تأكيد إلى بريدك الإلكتروني!");
-    }
-    setLoading(false);
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 p-4 transition-colors duration-500">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }} 
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white dark:bg-slate-800 p-8 md:p-12 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-slate-700 w-full max-w-md space-y-8"
+    <div
+      dir="rtl"
+      style={{
+        minHeight:       "100vh",
+        backgroundColor: "#F8F5F0",
+        backgroundImage: "radial-gradient(ellipse 90% 55% at 50% -5%, rgba(13,148,136,0.10) 0%, transparent 68%)",
+        display:         "flex",
+        alignItems:      "center",
+        justifyContent:  "center",
+        padding:         16,
+        fontFamily:      "'Cairo', sans-serif",
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          width:           "100%",
+          maxWidth:        440,
+          backgroundColor: "white",
+          borderRadius:    24,
+          padding:         40,
+          boxShadow:       "0 20px 60px rgba(30,40,30,0.12)",
+        }}
       >
-        <div className="text-center space-y-2">
-          <span className="text-4xl">🔐</span>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white">مرحباً بك مجدداً</h1>
-          <p className="text-gray-500 dark:text-gray-400">سجل دخولك لمتابعة رحلة تعافيك</p>
+
+        {/* ── Logo ──────────────────────────────────────────────── */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
+            {/* Teal "CL" badge */}
+            <div
+              style={{
+                width:        44,
+                height:       44,
+                borderRadius: 12,
+                background:   "linear-gradient(135deg, #2D6A4F 0%, #52B788 100%)",
+                display:      "flex",
+                alignItems:   "center",
+                justifyContent: "center",
+                boxShadow:    "0 3px 14px rgba(45,106,79,0.30)",
+                flexShrink:   0,
+              }}
+            >
+              <span style={{ color: "white", fontWeight: 900, fontSize: "0.9rem", letterSpacing: "-0.02em" }}>
+                CL
+              </span>
+            </div>
+
+            {/* Text */}
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: "1.15rem", fontWeight: 900, color: "#1A2E22", lineHeight: 1.15 }}>
+                Clean Life
+              </div>
+              <div style={{ fontSize: "0.72rem", fontWeight: 600, color: "#6B7280", marginTop: 1 }}>
+                عيادة الصحة والرياضة
+              </div>
+            </div>
+          </div>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2 text-right">
-            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mr-2">البريد الإلكتروني</label>
-            <input 
-              type="email" 
-              required
+        {/* ── Divider ───────────────────────────────────────────── */}
+        <hr style={{ border: "none", borderTop: "1px solid rgba(190,175,155,0.28)", marginBottom: 28 }} />
+
+        {/* ── Title + subtitle ──────────────────────────────────── */}
+        <div style={{ marginBottom: 26 }}>
+          <h1 style={{ fontSize: "1.6rem", fontWeight: 900, color: "#1A2E22", marginBottom: 7, lineHeight: 1.2 }}>
+            تسجيل الدخول
+          </h1>
+          <p style={{ fontSize: "0.875rem", color: "#6B7280", lineHeight: 1.65 }}>
+            أهلاً بك في عيادة Clean Life، أدخل بياناتك لمتابعة خطتك الصحية.
+          </p>
+        </div>
+
+        {/* ── Form ──────────────────────────────────────────────── */}
+        <form onSubmit={handleEmailLogin} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+          {/* Email */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
+              البريد الإلكتروني
+            </label>
+            <FormInput
+              type="email"
+              placeholder="example@email.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-700 border-2 border-transparent focus:border-sky-500 dark:text-white outline-none transition-all"
-              placeholder="name@example.com"
+              onChange={setEmail}
             />
           </div>
 
-          <div className="space-y-2 text-right">
-            <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mr-2">كلمة المرور</label>
-            <input 
-              type="password" 
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-4 rounded-2xl bg-slate-50 dark:bg-slate-700 border-2 border-transparent focus:border-sky-500 dark:text-white outline-none transition-all"
+          {/* Password */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {/* Label row */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
+                كلمة المرور
+              </label>
+              <a
+                href="#"
+                style={{
+                  fontSize:        "0.78rem",
+                  fontWeight:      600,
+                  color:           "#0D9488",
+                  textDecoration:  "none",
+                  transition:      "color 0.15s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#0F766E")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "#0D9488")}
+              >
+                نسيت كلمة المرور؟
+              </a>
+            </div>
+            <FormInput
+              type="password"
               placeholder="••••••••"
+              value={password}
+              onChange={setPassword}
             />
           </div>
 
-          {message && (
-            <p className={`text-center font-bold text-sm ${message.includes("خطأ") ? "text-red-500" : "text-green-500"}`}>
-              {message}
-            </p>
+          {/* Error message */}
+          {error && (
+            <div style={{
+              padding:         "10px 14px",
+              borderRadius:    10,
+              backgroundColor: "#FEF2F2",
+              border:          "1px solid #FECACA",
+              fontSize:        "0.84rem",
+              fontWeight:      600,
+              color:           "#DC2626",
+              textAlign:       "center",
+            }}>
+              ⚠ {error}
+            </div>
           )}
 
-          <div className="flex flex-col gap-4">
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full py-4 bg-sky-500 hover:bg-sky-600 text-white font-black rounded-2xl shadow-lg shadow-sky-500/20 transition-all disabled:opacity-50"
-            >
-              {loading ? "جاري التحميل..." : "تسجيل الدخول"}
-            </button>
-            <button 
-              type="button"
-              onClick={handleSignUp}
-              disabled={loading}
-              className="w-full py-4 bg-white dark:bg-slate-800 text-sky-500 border-2 border-sky-100 dark:border-slate-600 font-bold rounded-2xl hover:bg-sky-50 dark:hover:bg-slate-700 transition-all"
-            >
-              إنشاء حساب جديد
-            </button>
-          </div>
+          {/* Primary button */}
+          <button
+            type="submit"
+            disabled={isPending}
+            style={{
+              width:           "100%",
+              height:          48,
+              borderRadius:    13,
+              border:          "none",
+              background:      "linear-gradient(135deg, #2D6A4F 0%, #3D9970 100%)",
+              color:           "white",
+              fontSize:        "0.95rem",
+              fontWeight:      800,
+              fontFamily:      "inherit",
+              cursor:          isPending ? "not-allowed" : "pointer",
+              opacity:         isPending ? 0.72 : 1,
+              boxShadow:       "0 5px 20px rgba(45,106,79,0.28)",
+              transition:      "transform 0.15s, box-shadow 0.15s, opacity 0.15s",
+              marginTop:       4,
+            }}
+            onMouseEnter={(e) => { if (!isPending) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(45,106,79,0.34)"; }}}
+            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 5px 20px rgba(45,106,79,0.28)"; }}
+            onMouseDown={(e)  => { if (!isPending) e.currentTarget.style.transform = "translateY(1px)"; }}
+          >
+            {isPending ? "جاري التحقق..." : "تسجيل الدخول"}
+          </button>
         </form>
+
+        {/* ── OR separator ──────────────────────────────────────── */}
+        <div
+          style={{
+            display:    "flex",
+            alignItems: "center",
+            gap:        12,
+            margin:     "22px 0",
+          }}
+        >
+          <hr style={{ flex: 1, border: "none", borderTop: "1px solid rgba(190,175,155,0.32)" }} />
+          <span style={{ fontSize: "0.78rem", color: "#9CA3AF", fontWeight: 600 }}>أو</span>
+          <hr style={{ flex: 1, border: "none", borderTop: "1px solid rgba(190,175,155,0.32)" }} />
+        </div>
+
+        {/* ── Google button ─────────────────────────────────────── */}
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          disabled={isPending}
+          style={{
+            width:           "100%",
+            height:          48,
+            borderRadius:    13,
+            border:          "1px solid rgba(190,175,155,0.4)",
+            backgroundColor: "white",
+            display:         "flex",
+            alignItems:      "center",
+            justifyContent:  "center",
+            gap:             10,
+            fontSize:        "0.9rem",
+            fontWeight:      700,
+            fontFamily:      "inherit",
+            color:           "#374151",
+            cursor:          "pointer",
+            transition:      "background-color 0.15s, border-color 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#FAFAF8";
+            e.currentTarget.style.borderColor     = "rgba(190,175,155,0.65)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "white";
+            e.currentTarget.style.borderColor     = "rgba(190,175,155,0.4)";
+          }}
+        >
+          <GoogleIcon />
+          تسجيل الدخول بواسطة Google
+        </button>
+
+        {/* ── Footer ────────────────────────────────────────────── */}
+        <p style={{ textAlign: "center", fontSize: "0.845rem", color: "#6B7280", marginTop: 26, fontWeight: 500 }}>
+          ليس لديك حساب؟{" "}
+          <Link
+            href="/register"
+            style={{ color: "#0D9488", fontWeight: 700, textDecoration: "none" }}
+            onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
+            onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
+          >
+            إنشاء حساب جديد
+          </Link>
+        </p>
+
       </motion.div>
-    </main>
+    </div>
   );
 }

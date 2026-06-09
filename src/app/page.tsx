@@ -1,181 +1,434 @@
 "use client";
-import { motion } from "framer-motion";
+
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import RecoveryTracker from "@/components/RecoveryTracker";
-import RecoveryJournal from "@/components/RecoveryJournal";
+import {
+  ArrowLeft, Star, Users, TrendingUp, Clock, Headphones,
+  Activity, Dumbbell, Apple, BookOpen, Heart,
+} from "lucide-react";
+
+/* ------------------------------------------------------------------ */
+/*  Data                                                                 */
+/* ------------------------------------------------------------------ */
+
+const marqueeItems = [
+  { icon: "⭐", text: "خسرت 12 كيلو في 90 يوم" },
+  { icon: "💪", text: "تحسنت قوتي البدنية بشكل ملحوظ" },
+  { icon: "🥗", text: "نظامي الغذائي تغيّر للأبد" },
+  { icon: "🏃", text: "أصبحت أتمرن يومياً بلا انقطاع" },
+  { icon: "⭐", text: "أفضل استثمار في صحتي" },
+  { icon: "🎯", text: "أهدافي أصبحت واقعاً ملموساً" },
+  { icon: "🔥", text: "طاقتي تضاعفت خلال أسابيع" },
+  { icon: "🌟", text: "نتائج تفوق كل توقعاتي" },
+];
+
+const stats = [
+  { value: "+500", label: "عميل ناجح",     Icon: Users       },
+  { value: "98%",  label: "نسبة الرضا",    Icon: TrendingUp  },
+  { value: "90",   label: "يوم للنتائج",   Icon: Clock       },
+  { value: "24/7", label: "دعم متواصل",    Icon: Headphones  },
+];
+
+/* ------------------------------------------------------------------ */
+/*  Animation helpers                                                    */
+/* ------------------------------------------------------------------ */
+
+const fadeUp = (delay = 0) => ({
+  initial:    { opacity: 0, y: 40 },
+  animate:    { opacity: 1, y: 0  },
+  transition: { duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] as const },
+});
+
+const inView = (delay = 0) => ({
+  initial:    { opacity: 0, y: 30 },
+  whileInView:{ opacity: 1, y: 0  },
+  viewport:   { once: true        },
+  transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const },
+});
+
+/* ------------------------------------------------------------------ */
+/*  Page                                                                 */
+/* ------------------------------------------------------------------ */
 
 export default function Home() {
-  const featuredArticles = [
-    { 
-      id: "relapse", 
-      title: "الانتكاسة ليست النهاية: دليلك للإسعافات الأولية", 
-      excerpt: "تعلم كيف تتعامل مع زلاتك بذكاء، وتوقف النزيف فوراً دون جلد للذات.", 
-      category: "التعافي",
-      image: "https://png.pngtree.com/thumb_back/fh260/background/20240705/pngtree-view-of-green-rice-fields-with-morning-dew-and-mountains-with-image_15859864.jpg"
-    },
-    { 
-      id: "screens", 
-      title: "سجن الشاشات: الدليل العملي لصيام الدوبامين", 
-      excerpt: "توقف عن إهدار انتباهك. اكتشف كيف تتلاعب الخوارزميات بدماغك.", 
-      category: "الوعي الجذري",
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=600&auto=format&fit=crop"
-    },
-    { 
-      id: "habits", 
-      title: "قوة الـ 1%: كيف تبني عادات جبارة", 
-      excerpt: "توقف عن الأهداف الكبيرة. تعلم كيف تخدع دماغك بخطوات مجهرية تتراكم يومياً.", 
-      category: "تطوير الذات",
-      image: "https://i.pinimg.com/736x/a4/86/c2/a486c2daa5263cfda8bf7541e63870f4.jpg"
-    },
-    { 
-      id: "environment", 
-      title: "عدو في غرفتك: صمم بيئة تمنعك من السقوط", 
-      excerpt: "الإرادة تنفد، أما البيئة فتعمل دائماً. تخلص من المشتتات في محيطك.", 
-      category: "الوعي الجذري",
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&auto=format&fit=crop"
-    },
-    { 
-      id: "passion", 
-      title: "أسطورة الشغف: الانضباط هو الحل", 
-      excerpt: "لا تنتظر المزاج المناسب. ابنِ نظاماً قوياً يتفوق على تقلبات شغفك.", 
-      category: "تطوير الذات",
-      image: "https://i.pinimg.com/736x/16/59/f3/1659f3db1becd034aca8d0ed6d6d5d84.jpg"
-    },
-    { 
-      id: "dopamine", 
-      title: "وهم الدوبامين: كيف تسرق الإباحية عقلك", 
-      excerpt: "اكتشف كيف تؤثر العادات السلبية على كيمياء الدماغ وكيف تستعيد السيطرة.", 
-      category: "الوعي الجذري",
-      image: "https://images.unsplash.com/photo-1614729939124-032f0b56c9ce?q=80&w=600&auto=format&fit=crop"
-    }
-  ];
+  const dashboardRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target:  dashboardRef,
+    offset:  ["start end", "center center"],
+  });
+
+  const rotateX = useTransform(scrollYProgress, [0, 1], [22, 0]);
+  const scale   = useTransform(scrollYProgress, [0, 1], [0.88, 1]);
+  const yOffset = useTransform(scrollYProgress, [0, 1], [60, 0]);
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 text-gray-800 dark:text-gray-100 pb-20 font-sans transition-colors duration-500">
-      
-      {/* 1. مقدمة العيادة */}
-      <section className="max-w-7xl mx-auto px-4 py-24 flex flex-col md:flex-row items-center gap-16">
-        <div className="flex-1 space-y-8 text-right z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="text-sky-600 dark:text-sky-400 font-bold bg-sky-100/50 dark:bg-sky-900/30 border border-sky-200 dark:border-sky-800 px-5 py-2.5 rounded-full text-sm">
-              مساحتك الآمنة للتعافي
-            </span>
+    <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", backgroundColor: "#F7F3EC", color: "#1C1917" }}>
+
+      {/* ============================================================
+          HERO
+      ============================================================ */}
+      <section
+        className="min-h-screen flex flex-col justify-center items-center text-center px-4 pt-28 pb-20 relative overflow-hidden"
+        style={{ backgroundColor: "#F7F3EC" }}
+      >
+        {/* Ambient blobs */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, #0D948822 0%, transparent 65%)" }}
+        />
+        <div
+          className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+          style={{ background: "radial-gradient(circle, #D9770622 0%, transparent 65%)" }}
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10 space-y-7">
+          {/* Badge */}
+          <motion.div {...fadeUp(0)} className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-bold" style={{ backgroundColor: "#CCFBF1", color: "#0D9488", border: "1px solid #99F6E4" }}>
+            <Star className="w-4 h-4 fill-current" />
+            <span>منصة رعاية صحية بمعايير عالمية</span>
           </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-black text-gray-900 dark:text-white leading-[1.2]"
+
+          {/* Headline */}
+          <motion.h1
+            {...fadeUp(0.15)}
+            className="text-4xl md:text-6xl lg:text-7xl font-black"
+            style={{ lineHeight: 1.3, color: "#1C1917" }}
           >
-            نحن نفهم معاناتك.<br/> <span className="text-sky-500">الحل يبدأ بالعلم.</span>
+            نحت جسمك ورعايتك الصحية
+            <br />
+            <span style={{ color: "#0D9488" }}>بمعايير عالمية</span>
           </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.3 }}
-            className="text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl"
+
+          {/* Sub-headline */}
+          <motion.p
+            {...fadeUp(0.3)}
+            className="text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
+            style={{ color: "#57534E" }}
           >
-            توقف عن لوم نفسك. الإدمان والعادات السلبية ليست دليلاً على ضعفك، بل هي استجابة كيميائية في دماغك. في "حياة أنظف"، نقدم لك التشخيص، المعرفة، والأدوات لاستعادة السيطرة.
+            برامج متكاملة للتدريب والتغذية والرعاية الصحية، مصممة خصيصاً لأهدافك الشخصية
+            وتمنحك نتائج حقيقية مستدامة.
           </motion.p>
-          
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: 0.5, delay: 0.6 }} className="flex gap-4 pt-4">
-            <Link href="/articles" className="px-8 py-4 bg-sky-500 text-white font-bold rounded-2xl shadow-lg shadow-sky-500/30 hover:-translate-y-1 hover:shadow-sky-500/50 transition-all duration-300">
-              ابدأ الفحص والتشخيص
+
+          {/* CTA buttons */}
+          <motion.div {...fadeUp(0.45)} className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-2">
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-8 py-4 rounded-2xl text-white font-bold text-lg transition-transform hover:scale-105 active:scale-95"
+              style={{ backgroundColor: "#0D9488", boxShadow: "0 8px 32px #0D948838" }}
+            >
+              ابدأ رحلتك الآن
+              <ArrowLeft className="w-5 h-5" />
             </Link>
-            <Link href="#knowledge" className="px-8 py-4 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-bold rounded-2xl border border-gray-200 dark:border-slate-700 hover:border-sky-500 dark:hover:border-sky-500 hover:text-sky-500 dark:hover:text-sky-400 transition-all duration-300">
-              اكتشف كيف نعمل
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-105 active:scale-95"
+              style={{ backgroundColor: "white", color: "#0D9488", border: "2px solid #0D9488" }}
+            >
+              تعرف علينا أكثر
             </Link>
           </motion.div>
         </div>
+      </section>
 
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1 }} className="flex-1 w-full relative">
-          <div className="absolute inset-0 bg-sky-100 dark:bg-sky-900/20 rounded-[3rem] -rotate-3 scale-105 opacity-50"></div>
-          <img 
-            src="https://i.pinimg.com/736x/ba/35/53/ba355354c5189738d1715fa96cb813c4.jpg" 
-            alt="الهدوء والوضوح العقلي" 
-            className="relative rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 object-cover h-[500px] w-full transition-colors duration-500"
-          />
+      {/* ============================================================
+          MINI DASHBOARD PREVIEW — 3-D scroll effect
+      ============================================================ */}
+      <section ref={dashboardRef} className="py-20 px-4 overflow-hidden" style={{ backgroundColor: "#F7F3EC" }}>
+        <motion.div {...inView(0)} className="text-center max-w-xl mx-auto mb-14">
+          <h2 className="text-3xl md:text-4xl font-black mb-3" style={{ color: "#1C1917" }}>
+            لوحة تحكم ذكية بين يديك
+          </h2>
+          <p className="text-lg" style={{ color: "#57534E" }}>
+            تابع تقدمك، سجّل وجباتك، وراجع خطة تدريبك كل يوم
+          </p>
         </motion.div>
-      </section>
 
-      {/* 2. قسم الأدوات التفاعلية (العداد واليوميات) */}
-      <section className="max-w-5xl mx-auto px-4 py-12 relative z-20 space-y-12">
-        <RecoveryTracker />
-        <RecoveryJournal />
-      </section>
-
-      {/* 3. قسم الحقائق المريحة */}
-      <section id="knowledge" className="bg-white dark:bg-slate-900 py-24 border-y border-gray-100 dark:border-slate-800 relative overflow-hidden mt-12 transition-colors duration-500">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-sky-50 dark:bg-sky-900/10 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-16 max-w-3xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-6">ثلاث حقائق ستغير نظرتك لنفسك</h2>
-            <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">قبل أن تبدأ رحلة التعافي، يجب أن تفهم كيف يعمل دماغك لكي تتوقف عن القتال في المعركة الخاطئة.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { icon: "🧪", title: "المشكلة كيميائية", desc: "الفشل المتكرر ليس نقصاً في الأخلاق أو الإرادة. هو مجرد 'اختطاف' لنظام الدوبامين في دماغك بسبب محفزات العصر الحديث السريعة." },
-              { icon: "🌱", title: "المرونة العصبية", desc: "الخبر السار: دماغك يشبه البلاستيك، يتشكل ويتغير. مهما كانت مسارات الإدمان عميقة، يمكنك إعادة بناء مسارات عصبية جديدة وصحية بالتدريج." },
-              { icon: "🧩", title: "قوة النظام لا الحماس", desc: "الحماس ينتهي بعد يومين. التعافي الحقيقي يُبنى من خلال هندسة بيئتك وصنع عادات مجهرية (Micro-habits) لا تتطلب جهداً كبيراً." }
-            ].map((item, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.2 }} className="bg-slate-50 dark:bg-slate-800/50 p-10 rounded-[2.5rem] border border-gray-100 dark:border-slate-700 hover:border-sky-300 dark:hover:border-sky-700 hover:shadow-xl hover:shadow-sky-100 dark:hover:shadow-none transition-all duration-300 group">
-                <div className="text-5xl mb-6 bg-white dark:bg-slate-700 w-20 h-20 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">{item.icon}</div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{item.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. جرعة وعي */}
-      <section className="max-w-5xl mx-auto px-4 py-20">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="bg-sky-500 dark:bg-sky-600 text-white rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-sky-500/20 dark:shadow-none">
-          <div className="absolute top-0 right-0 w-full h-full bg-[url('https://images.unsplash.com/photo-1516534775068-ba3e7458af70?q=80&w=1200&auto=format&fit=crop')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
-          <div className="relative z-10">
-            <span className="text-sky-200 dark:text-sky-100 font-bold tracking-wider text-sm mb-6 block uppercase">جرعة وعي</span>
-            <blockquote className="text-3xl md:text-4xl font-black leading-tight mb-8">
-              "أنت لا ترتقي إلى مستوى طموحاتك، بل تسقط إلى مستوى أنظمتك. التغيير لا يبدأ بقرار كبير، بل ببيئة صحية."
-            </blockquote>
-            <p className="text-sky-100 dark:text-sky-200 text-lg">عيادة حياة أنظف</p>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* 5. مكتبة العيادة */}
-      <section className="max-w-7xl mx-auto px-4 py-20 border-t border-gray-100 dark:border-slate-800">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-          <div className="max-w-2xl">
-            <span className="text-sky-500 dark:text-sky-400 font-bold text-sm mb-2 block">المكتبة المعرفية</span>
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4">وصفات معرفية للتعافي</h2>
-            <p className="text-gray-500 dark:text-gray-400 text-lg">اخترنا لك هذه المقالات بعناية لتكون نقطة انطلاقك في فهم مشكلتك والبدء بحلها.</p>
-          </div>
-          <Link href="/articles" className="px-6 py-3 bg-slate-100 dark:bg-slate-800 text-gray-700 dark:text-gray-200 font-bold rounded-xl hover:bg-sky-50 dark:hover:bg-slate-700 hover:text-sky-600 dark:hover:text-sky-400 transition-colors flex items-center gap-2">
-            تصفح كل الأبحاث <span>←</span>
-          </Link>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredArticles.map((article, index) => (
-            <Link href={`/articles/${article.id}`} key={index}>
-              <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }} className="bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl dark:hover:shadow-none hover:-translate-y-2 transition-all duration-500 group border border-gray-100 dark:border-slate-700 h-full flex flex-col">
-                <div className="h-56 overflow-hidden shrink-0 relative">
-                  <div className="absolute inset-0 bg-sky-900/20 dark:bg-sky-900/40 group-hover:bg-transparent transition-colors z-10"></div>
-                  <img src={article.image} alt={article.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+        <div className="max-w-3xl mx-auto" style={{ perspective: "1200px" }}>
+          <motion.div style={{ rotateX, scale, y: yOffset }} className="rounded-3xl overflow-hidden shadow-2xl">
+            {/* Dashboard mock */}
+            <div style={{ backgroundColor: "#ffffff", border: "1px solid #E7E5E4" }}>
+              {/* Title bar */}
+              <div
+                className="flex items-center justify-between px-6 py-4"
+                style={{ borderBottom: "1px solid #F5F5F4", backgroundColor: "#FAFAF9" }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#EF4444" }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#F59E0B" }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#10B981" }} />
                 </div>
-                <div className="p-8 flex flex-col flex-1">
-                  <span className="text-xs font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-900/30 px-3 py-1 rounded-full mb-4 inline-block w-fit border border-sky-100 dark:border-sky-800">{article.category}</span>
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 group-hover:text-sky-500 dark:group-hover:text-sky-400 transition-colors leading-snug">{article.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed flex-1">{article.excerpt}</p>
-                  <div className="mt-auto border-t border-gray-50 dark:border-slate-700 pt-4 flex items-center justify-between">
-                    <span className="text-sky-500 dark:text-sky-400 font-bold text-sm">اقرأ التحليل</span>
-                    <span className="text-sky-300 dark:text-sky-500 group-hover:translate-x-[-8px] transition-transform">←</span>
+                <span className="text-sm font-semibold" style={{ color: "#78716C" }}>لوحة التحكم — حياة نظيفة</span>
+                <Heart className="w-5 h-5" style={{ color: "#0D9488" }} />
+              </div>
+
+              {/* Cards */}
+              <div className="p-6 grid grid-cols-2 gap-4">
+                {/* Streak */}
+                <div className="rounded-2xl p-5" style={{ backgroundColor: "#F0FDFA", border: "1px solid #99F6E4" }}>
+                  <p className="text-sm font-semibold mb-1" style={{ color: "#0D9488" }}>أيام الالتزام</p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-5xl font-black" style={{ color: "#0F766E" }}>42</span>
+                    <span className="text-lg mb-1.5" style={{ color: "#0D9488" }}>يوم 🔥</span>
+                  </div>
+                  <div className="flex gap-1 mt-3">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <div key={i} className="flex-1 rounded" style={{ height: 6, backgroundColor: i < 6 ? "#0D9488" : "#CCFBF1" }} />
+                    ))}
                   </div>
                 </div>
-              </motion.div>
-            </Link>
+
+                {/* Weight */}
+                <div className="rounded-2xl p-5" style={{ backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }}>
+                  <p className="text-sm font-semibold mb-1" style={{ color: "#D97706" }}>الوزن الحالي</p>
+                  <div className="flex items-end gap-2">
+                    <span className="text-5xl font-black" style={{ color: "#B45309" }}>78</span>
+                    <span className="text-lg mb-1.5" style={{ color: "#D97706" }}>كغ ↓</span>
+                  </div>
+                  <p className="text-sm mt-1" style={{ color: "#92400E" }}>−5 كغ منذ البداية</p>
+                </div>
+
+                {/* Today tasks */}
+                <div className="rounded-2xl p-5 col-span-2" style={{ backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }}>
+                  <p className="text-sm font-semibold mb-3" style={{ color: "#374151" }}>مهام اليوم</p>
+                  <div className="space-y-2">
+                    {["تمرين الصباح 30 دقيقة", "تناول وجبة البروتين", "8 أكواب ماء"].map((task, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div
+                          className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: i < 2 ? "#0D9488" : "#E5E7EB" }}
+                        >
+                          {i < 2 && <span className="text-white text-xs">✓</span>}
+                        </div>
+                        <span
+                          className="text-sm"
+                          style={{ color: i < 2 ? "#9CA3AF" : "#111827", textDecoration: i < 2 ? "line-through" : "none" }}
+                        >
+                          {task}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          INFINITE MARQUEE — social proof
+      ============================================================ */}
+      <section
+        className="py-10 overflow-hidden"
+        style={{ backgroundColor: "#F0FDFA", borderTop: "1px solid #CCFBF1", borderBottom: "1px solid #CCFBF1" }}
+      >
+        {/* ltr wrapper so RTL parent doesn't flip scroll direction */}
+        <div dir="ltr">
+          <motion.div
+            className="flex gap-5"
+            style={{ width: "max-content" }}
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+          >
+            {[...marqueeItems, ...marqueeItems].map((item, i) => (
+              <div
+                key={i}
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-full flex-shrink-0 font-semibold text-sm whitespace-nowrap"
+                style={{ backgroundColor: "white", border: "1px solid #99F6E4", color: "#0F766E" }}
+                dir="rtl"
+              >
+                <span>{item.icon}</span>
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          STATS ROW
+      ============================================================ */}
+      <section className="py-20 px-4" style={{ backgroundColor: "#F7F3EC" }}>
+        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-5">
+          {stats.map(({ value, label, Icon }, i) => (
+            <motion.div
+              key={i}
+              {...inView(i * 0.1)}
+              className="flex flex-col items-center text-center p-6 rounded-2xl"
+              style={{ backgroundColor: "white", border: "1px solid #E7E5E4", boxShadow: "0 2px 16px #00000009" }}
+            >
+              <Icon className="w-8 h-8 mb-3" style={{ color: "#0D9488" }} />
+              <div className="text-3xl md:text-4xl font-black mb-1" style={{ color: "#0D9488" }}>{value}</div>
+              <div className="text-sm font-semibold" style={{ color: "#78716C" }}>{label}</div>
+            </motion.div>
           ))}
         </div>
       </section>
 
-    </main>
+      {/* ============================================================
+          BENTO GRID — Services
+      ============================================================ */}
+      <section className="py-20 px-4" style={{ backgroundColor: "#F7F3EC" }}>
+        <div className="max-w-5xl mx-auto">
+          <motion.div {...inView(0)} className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-black mb-3" style={{ color: "#1C1917" }}>
+              خدماتنا المتكاملة
+            </h2>
+            <p className="text-lg" style={{ color: "#57534E" }}>
+              كل ما تحتاجه لرحلة صحية ناجحة في مكان واحد
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-[auto_auto] gap-5">
+            {/* Card 1 — normal */}
+            <motion.div
+              {...inView(0.1)}
+              className="p-7 rounded-3xl flex flex-col gap-4"
+              style={{ backgroundColor: "#F0FDFA", border: "1px solid #99F6E4" }}
+            >
+              <Dumbbell className="w-10 h-10" style={{ color: "#0D9488" }} />
+              <h3 className="text-xl font-black" style={{ color: "#134E4A" }}>برامج التدريب المخصصة</h3>
+              <p className="leading-relaxed" style={{ color: "#115E59" }}>
+                خطط تمرين فردية من مدربين معتمدين دولياً تناسب مستواك وأهدافك الشخصية
+              </p>
+            </motion.div>
+
+            {/* Card 2 — tall (row-span-2) */}
+            <motion.div
+              {...inView(0.2)}
+              className="p-7 rounded-3xl flex flex-col gap-4 md:row-span-2"
+              style={{ backgroundColor: "#FFFBEB", border: "1px solid #FDE68A" }}
+            >
+              <Apple className="w-10 h-10" style={{ color: "#D97706" }} />
+              <h3 className="text-xl font-black" style={{ color: "#78350F" }}>التغذية العلاجية</h3>
+              <p className="leading-relaxed" style={{ color: "#92400E" }}>
+                أنظمة غذائية مخصصة وعلمية بإشراف أخصائيي التغذية المعتمدين الذين يفهمون احتياجات جسمك
+              </p>
+
+              {/* Mock nutrition plan */}
+              <div className="mt-auto rounded-2xl p-4 space-y-3" style={{ backgroundColor: "white", border: "1px solid #FDE68A" }}>
+                <p className="text-xs font-bold" style={{ color: "#92400E" }}>خطة وجبات اليوم</p>
+                {["إفطار صحي — 400 سعرة", "وجبة متوسطة — 600 سعرة", "عشاء خفيف — 350 سعرة"].map((meal, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: "#D97706" }} />
+                    <span className="text-xs" style={{ color: "#78350F" }}>{meal}</span>
+                  </div>
+                ))}
+                <div className="pt-2" style={{ borderTop: "1px solid #FDE68A" }}>
+                  <div className="flex justify-between text-xs font-bold mb-2">
+                    <span style={{ color: "#92400E" }}>إجمالي السعرات</span>
+                    <span style={{ color: "#D97706" }}>1350 / 1800</span>
+                  </div>
+                  <div className="rounded-full overflow-hidden" style={{ height: 6, backgroundColor: "#FEF3C7" }}>
+                    <div className="h-full rounded-full" style={{ width: "75%", backgroundColor: "#D97706" }} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Card 3 — normal */}
+            <motion.div
+              {...inView(0.3)}
+              className="p-7 rounded-3xl flex flex-col gap-4"
+              style={{ backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0" }}
+            >
+              <Activity className="w-10 h-10" style={{ color: "#059669" }} />
+              <h3 className="text-xl font-black" style={{ color: "#064E3B" }}>متابعة التقدم الأسبوعي</h3>
+              <p className="leading-relaxed" style={{ color: "#065F46" }}>
+                تقارير تفصيلية ولوحة ذكية تعكس تطورك الحقيقي أسبوعاً بأسبوع
+              </p>
+            </motion.div>
+
+            {/* Card 4 — wide (col-span-2) */}
+            <motion.div
+              {...inView(0.4)}
+              className="p-7 rounded-3xl flex flex-col gap-4 md:col-span-2"
+              style={{ backgroundColor: "#F0FDFA", border: "1px solid #99F6E4" }}
+            >
+              <BookOpen className="w-10 h-10" style={{ color: "#0D9488" }} />
+              <h3 className="text-xl font-black" style={{ color: "#134E4A" }}>مكتبة المحتوى الصحي</h3>
+              <p className="leading-relaxed" style={{ color: "#115E59" }}>
+                مئات المقالات والفيديوهات التعليمية المتخصصة لبناء عادات صحية واعية ومستدامة تدوم طوال العمر
+              </p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+          CTA BANNER
+      ============================================================ */}
+      <section className="py-24 px-4" style={{ backgroundColor: "#F7F3EC" }}>
+        <motion.div
+          {...inView(0)}
+          className="max-w-4xl mx-auto rounded-3xl p-12 text-center relative overflow-hidden"
+          style={{
+            background:    "linear-gradient(135deg, #064E3B 0%, #065F46 55%, #0D9488 100%)",
+            boxShadow:     "0 24px 64px #064E3B44",
+          }}
+        >
+          {/* Decorative blobs */}
+          <div
+            className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none -translate-y-1/2 translate-x-1/4 opacity-10"
+            style={{ backgroundColor: "#34D399" }}
+          />
+          <div
+            className="absolute bottom-0 left-0 w-48 h-48 rounded-full pointer-events-none translate-y-1/2 -translate-x-1/4 opacity-10"
+            style={{ backgroundColor: "#6EE7B7" }}
+          />
+
+          <div className="relative z-10">
+            <h2 className="text-3xl md:text-5xl font-black mb-4 text-white">
+              ابدأ تحولك الصحي اليوم
+            </h2>
+            <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto" style={{ color: "#A7F3D0" }}>
+              انضم إلى أكثر من 500 عميل حققوا أهدافهم الصحية مع فريقنا المتخصص.
+              رحلتك تبدأ بخطوة واحدة.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-105 active:scale-95"
+                style={{ backgroundColor: "white", color: "#064E3B" }}
+              >
+                احجز استشارتك المجانية
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-lg transition-transform hover:scale-105 active:scale-95"
+                style={{ color: "white", border: "2px solid rgba(255,255,255,0.45)" }}
+              >
+                اعرف المزيد
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ============================================================
+          FOOTER
+      ============================================================ */}
+      <footer className="py-12 px-4" style={{ backgroundColor: "#1C1917", color: "#A8A29E" }}>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="text-center md:text-right">
+              <h3 className="text-xl font-black mb-1" style={{ color: "white" }}>حياة نظيفة</h3>
+              <p className="text-sm">رعايتك الصحية بمعايير عالمية</p>
+            </div>
+            <div className="flex gap-6 text-sm font-medium">
+              <Link href="/dashboard" className="hover:text-white transition-colors">لوحة التحكم</Link>
+              <Link href="/dashboard" className="hover:text-white transition-colors">الخدمات</Link>
+              <Link href="/dashboard" className="hover:text-white transition-colors">تواصل معنا</Link>
+            </div>
+          </div>
+          <div className="mt-8 pt-6 text-center text-sm" style={{ borderTop: "1px solid #292524" }}>
+            <p>© 2026 حياة نظيفة — جميع الحقوق محفوظة</p>
+          </div>
+        </div>
+      </footer>
+
+    </div>
   );
 }

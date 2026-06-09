@@ -225,7 +225,10 @@ function LandingNavbar() {
           display: "flex", alignItems: "center", justifyContent: "center",
           boxShadow: "0 2px 10px rgba(45,106,79,0.28)",
         }}>
-          <span style={{ color: "white", fontWeight: 900, fontSize: 12, letterSpacing: "-0.02em" }}>CL</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
         </div>
         <div>
           <p style={{ fontSize: 14, fontWeight: 900, color: "#1a2e22", lineHeight: 1.2 }}>Clean Life</p>
@@ -952,24 +955,6 @@ export default function Home() {
               <X size={20} color="white" />
             </button>
 
-            {/* Mute toggle */}
-            {!videoError && (
-              <button
-                onClick={() => setMuted(v => !v)}
-                style={{
-                  position: "absolute", top: 24, right: 24,
-                  width: 40, height: 40, borderRadius: "50%",
-                  backgroundColor: "rgba(255,255,255,0.10)",
-                  border: "none", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "background 0.15s", zIndex: 10,
-                }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.20)")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.10)")}
-              >
-                {muted ? <VolumeX size={20} color="white" /> : <Volume2 size={20} color="white" />}
-              </button>
-            )}
 
             {/* Video / fallback container */}
             <motion.div
@@ -984,80 +969,32 @@ export default function Home() {
                 boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
               }}
             >
-              {videoError ? (
-                /* ── FIX 3: Animated gradient fallback ── */
-                <>
-                  <motion.div
-                    style={{
-                      position: "absolute", inset: 0,
-                      background: "linear-gradient(135deg, #1B4332, #2D6A4F, #40916C, #52B788)",
-                      backgroundSize: "300% 300%",
-                    }}
-                    animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
-                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                  />
-                  {/* Pulsing glow circle */}
-                  <motion.div
-                    animate={{ scale: [1, 1.4, 1], opacity: [0.15, 0.35, 0.15] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    style={{
-                      position: "absolute", top: "50%", left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      width: 280, height: 280, borderRadius: "50%",
-                      backgroundColor: "#52B788", filter: "blur(40px)",
-                      pointerEvents: "none",
-                    }}
-                  />
-                  {/* Centered text */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    style={{
-                      position: "absolute", top: "50%", left: "50%",
-                      transform: "translate(-50%, -50%)",
-                      textAlign: "center", zIndex: 2, width: "100%",
-                      padding: "0 40px", boxSizing: "border-box",
-                    }}
-                  >
-                    <p style={{ fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 900, color: "white", lineHeight: 1.2, wordBreak: "break-word", textAlign: "center" }}>
-                      حياتك تبدأ من هنا
-                    </p>
-                    <p style={{ fontSize: 18, color: "rgba(255,255,255,0.8)", marginTop: 16, lineHeight: 1.6, textAlign: "center", padding: "0 20px" }}>
-                      نحن نبني معك المستقبل الذي تستحقه
-                    </p>
-                  </motion.div>
-                </>
-              ) : (
-                /* ── Normal video ── */
-                <>
-                  <video
-                    src="/videos/motivation.mp4"
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    autoPlay loop muted={muted} playsInline
-                    onError={() => setVideoError(true)}
-                  />
-                  {/* Gradient overlay */}
-                  <div style={{
-                    position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
-                    pointerEvents: "none",
-                  }} />
-                  {/* Text overlay */}
-                  <div style={{
-                    position: "absolute", bottom: 40, left: "50%",
-                    transform: "translateX(-50%)",
-                    textAlign: "center", zIndex: 2, width: "100%",
-                  }}>
-                    <p style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.2em", fontSize: 12, fontWeight: 600 }}>
-                      ابدأ رحلة التحول
-                    </p>
-                    <p style={{ fontSize: 32, fontWeight: 900, color: "white", marginTop: 8 }}>
-                      حياتك تبدأ الآن
-                    </p>
-                  </div>
-                </>
-              )}
+              {/* YouTube embed */}
+              <iframe
+                src="https://www.youtube.com/embed/V7JFuRFJFV8?autoplay=1&mute=1&loop=1&playlist=V7JFuRFJFV8&controls=0&showinfo=0&rel=0"
+                style={{ width: "100%", height: "100%", border: "none", borderRadius: 16 }}
+                allow="autoplay; fullscreen"
+                allowFullScreen
+              />
+              {/* Gradient overlay */}
+              <div style={{
+                position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
+                background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+                pointerEvents: "none",
+              }} />
+              {/* Text overlay */}
+              <div style={{
+                position: "absolute", bottom: 40, left: "50%",
+                transform: "translateX(-50%)",
+                textAlign: "center", zIndex: 2, width: "100%",
+              }}>
+                <p style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.2em", fontSize: 12, fontWeight: 600 }}>
+                  ابدأ رحلة التحول
+                </p>
+                <p style={{ fontSize: 32, fontWeight: 900, color: "white", marginTop: 8 }}>
+                  حياتك تبدأ الآن
+                </p>
+              </div>
             </motion.div>
 
             {/* Skip button */}

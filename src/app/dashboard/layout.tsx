@@ -146,7 +146,10 @@ function TopNavbar() {
           display: "flex", alignItems: "center", justifyContent: "center",
           boxShadow: "0 2px 10px rgba(45,106,79,0.28)",
         }}>
-          <span style={{ color: "white", fontWeight: 900, fontSize: 12, letterSpacing: "-0.02em" }}>CL</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+          </svg>
         </div>
         <div>
           <p style={{ fontSize: 14, fontWeight: 900, color: "#1a2e22", lineHeight: 1.2 }}>Clean Life</p>
@@ -305,7 +308,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Desktop: brand */}
           <div className="hidden lg:flex items-center gap-3 px-6 py-6 border-b border-gray-100/80">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-teal-600/30">
-              <span className="text-white text-xs font-black tracking-tight">CL</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+              </svg>
             </div>
             <div>
               <p className="text-gray-900 font-black text-sm leading-tight">Clean Life</p>

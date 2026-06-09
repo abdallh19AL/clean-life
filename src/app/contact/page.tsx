@@ -380,34 +380,6 @@ export default function ContactPage() {
             </motion.div>
           ))}
 
-          {/* Map placeholder */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45, delay: 0.55 }}
-            style={{
-              borderRadius: 20, overflow: "hidden",
-              border: "1px solid rgba(190,175,155,0.22)",
-              boxShadow: "0 2px 16px rgba(80,60,30,0.07)",
-              flex: 1, minHeight: 160,
-              background: "linear-gradient(135deg, #e8f5e9, #f1f8e9)",
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center", gap: 12,
-            }}
-          >
-            <div style={{
-              width: 48, height: 48, borderRadius: "50%",
-              background: "linear-gradient(135deg, #2D6A4F, #52B788)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 4px 14px rgba(45,106,79,0.28)",
-            }}>
-              <MapPin size={22} color="white" />
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 14, fontWeight: 800, color: "#1a2e22", margin: 0 }}>عمّان، الأردن</p>
-              <p style={{ fontSize: 12, color: "#9B8E7E", marginTop: 4 }}>اضغط لعرض الموقع على الخريطة</p>
-            </div>
-          </motion.div>
         </div>
       </div>
     </div>

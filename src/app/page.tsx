@@ -17,6 +17,7 @@ import {
   ArrowLeft, Star, Users, TrendingUp, Clock, Headphones,
   Activity, Dumbbell, Apple, BookOpen, Heart,
   X, Volume2, VolumeX, Sparkles,
+  Home, ShoppingBag, Calculator, HeartPulse,
 } from "lucide-react";
 
 /* ─── Data ───────────────────────────────────────────────────────────────── */
@@ -34,13 +35,7 @@ const marqueeItems = [
 
 /* ─── AnimatedCounter ────────────────────────────────────────────────────── */
 
-function AnimatedCounter({
-  value,
-  suffix = "",
-}: {
-  value: number;
-  suffix?: string;
-}) {
+function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const isInView = useInView(ref, { once: true });
   const [display, setDisplay] = useState(0);
@@ -116,7 +111,7 @@ function FloatingOrbs() {
   );
 }
 
-/* ─── Scroll indicator (bouncing mouse) ─────────────────────────────────── */
+/* ─── Scroll indicator ───────────────────────────────────────────────────── */
 
 function ScrollIndicator() {
   return (
@@ -146,7 +141,7 @@ function ScrollIndicator() {
   );
 }
 
-/* ─── Card variants (hover propagates to icon child) ────────────────────── */
+/* ─── Card variants ──────────────────────────────────────────────────────── */
 
 const cardVars = {
   hidden:  { opacity: 0, scale: 0.95, y: 24 },
@@ -166,7 +161,7 @@ const iconVars = {
   hover:   { rotate: [0, -10, 10, 0], transition: { duration: 0.45 } },
 };
 
-/* ─── Glow blob inside service card ─────────────────────────────────────── */
+/* ─── GlowBlob ───────────────────────────────────────────────────────────── */
 
 function GlowBlob({ color, delay = 0 }: { color: string; delay?: number }) {
   return (
@@ -183,7 +178,7 @@ function GlowBlob({ color, delay = 0 }: { color: string; delay?: number }) {
   );
 }
 
-/* ─── fadeUp / inView helpers ────────────────────────────────────────────── */
+/* ─── Animation helpers ──────────────────────────────────────────────────── */
 
 const fadeUp = (delay = 0) => ({
   initial:    { opacity: 0, y: 40 },
@@ -198,21 +193,140 @@ const inView = (delay = 0) => ({
   transition:  { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const },
 });
 
+/* ─── Landing Navbar ─────────────────────────────────────────────────────── */
+
+const NAV_LINKS = [
+  { href: "/",           label: "الرئيسية",      Icon: Home        },
+  { href: "/store",      label: "المتجر",         Icon: ShoppingBag },
+  { href: "/calculator", label: "حاسبة السعرات", Icon: Calculator  },
+];
+
+function LandingNavbar() {
+  return (
+    <div
+      dir="rtl"
+      style={{
+        position: "sticky", top: 0, zIndex: 100,
+        height: 60, flexShrink: 0,
+        backgroundColor: "rgba(252,250,246,0.85)",
+        backdropFilter: "blur(18px)",
+        WebkitBackdropFilter: "blur(18px)",
+        borderBottom: "1px solid rgba(190,175,155,0.20)",
+        padding: "0 28px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        fontFamily: "'Cairo','Segoe UI',sans-serif",
+      }}
+    >
+      {/* RIGHT: Logo */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+          background: "linear-gradient(135deg, #2D6A4F, #52B788)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          boxShadow: "0 2px 10px rgba(45,106,79,0.28)",
+        }}>
+          <span style={{ color: "white", fontWeight: 900, fontSize: 12, letterSpacing: "-0.02em" }}>CL</span>
+        </div>
+        <div>
+          <p style={{ fontSize: 14, fontWeight: 900, color: "#1a2e22", lineHeight: 1.2 }}>Clean Life</p>
+          <p style={{ fontSize: 10, fontWeight: 600, color: "#6B9E80" }}>عيادة الصحة</p>
+        </div>
+      </div>
+
+      {/* CENTER: Nav links */}
+      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+        {NAV_LINKS.map(({ href, label, Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "6px 12px", borderRadius: 10,
+              color: "#4A6B5C", fontSize: 13.5, fontWeight: 600,
+              textDecoration: "none", transition: "background 0.15s, color 0.15s",
+            }}
+            onMouseEnter={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement;
+              el.style.backgroundColor = "rgba(61,122,94,0.08)";
+              el.style.color = "#2D6A4F";
+            }}
+            onMouseLeave={(e) => {
+              const el = e.currentTarget as HTMLAnchorElement;
+              el.style.backgroundColor = "transparent";
+              el.style.color = "#4A6B5C";
+            }}
+          >
+            <Icon size={14} />
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      {/* LEFT: Auth buttons */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <Link
+          href="/login"
+          style={{
+            padding: "8px 20px", borderRadius: 12,
+            color: "#2D6A4F", fontSize: 13.5, fontWeight: 700,
+            textDecoration: "none",
+            border: "1.5px solid rgba(45,106,79,0.35)",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLAnchorElement;
+            el.style.backgroundColor = "rgba(61,122,94,0.08)";
+            el.style.borderColor = "#2D6A4F";
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLAnchorElement;
+            el.style.backgroundColor = "transparent";
+            el.style.borderColor = "rgba(45,106,79,0.35)";
+          }}
+        >
+          تسجيل الدخول
+        </Link>
+        <Link
+          href="/login"
+          style={{
+            padding: "8px 20px", borderRadius: 12,
+            color: "white", fontSize: 13.5, fontWeight: 700,
+            textDecoration: "none",
+            background: "linear-gradient(135deg, #2D6A4F, #52B788)",
+            boxShadow: "0 2px 10px rgba(45,106,79,0.28)",
+            transition: "opacity 0.15s",
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "0.9")}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "1")}
+        >
+          احجز استشارة
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 export default function Home() {
   const router = useRouter();
 
   /* Modal state */
-  const [aboutOpen, setAboutOpen] = useState(false);
-  const [videoOpen, setVideoOpen] = useState(false);
-  const [muted, setMuted] = useState(true);
+  const [aboutOpen, setAboutOpen]   = useState(false);
+  const [videoOpen, setVideoOpen]   = useState(false);
+  const [muted,     setMuted]       = useState(true);
+  const [videoError, setVideoError] = useState(false);
 
   /* Lock body scroll while any modal is open */
   useEffect(() => {
     document.body.style.overflow = aboutOpen || videoOpen ? "hidden" : "auto";
     return () => { document.body.style.overflow = "auto"; };
   }, [aboutOpen, videoOpen]);
+
+  /* Reset video error each time the modal opens */
+  useEffect(() => {
+    if (videoOpen) setVideoError(false);
+  }, [videoOpen]);
 
   /* Dashboard 3-D scroll effect */
   const dashboardRef = useRef<HTMLDivElement>(null);
@@ -237,6 +351,9 @@ export default function Home() {
   return (
     <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", backgroundColor: "#F7F3EC", color: "#1C1917" }}>
 
+      {/* ── FIX 1: Sticky landing navbar ── */}
+      <LandingNavbar />
+
       {/* ══════════════════════════════════════════════════════════════
           HERO
       ══════════════════════════════════════════════════════════════ */}
@@ -249,22 +366,18 @@ export default function Home() {
           backgroundColor: "#F7F3EC",
         }}
       >
-        {/* Floating orbs on parallax layer */}
         <motion.div style={{ y: heroBgY, position: "absolute", inset: 0, zIndex: 0 }}>
           <FloatingOrbs />
         </motion.div>
 
-        {/* Static radial glow */}
         <div style={{
           position: "absolute", top: 0, left: "50%", transform: "translateX(-50%)",
           width: 800, height: 800, borderRadius: "50%", pointerEvents: "none", zIndex: 0,
           background: "radial-gradient(circle, #0D948812 0%, transparent 65%)",
         }} />
 
-        {/* Text content — separate parallax layer */}
         <motion.div style={{ y: heroTextY, opacity: heroOpacity, position: "relative", zIndex: 10, width: "100%", maxWidth: 900 }}>
 
-          {/* Badge */}
           <motion.div
             {...fadeUp(0)}
             style={{
@@ -278,7 +391,6 @@ export default function Home() {
             <span>منصة رعاية صحية بمعايير عالمية</span>
           </motion.div>
 
-          {/* Headline */}
           <motion.h1
             {...fadeUp(0.15)}
             style={{
@@ -288,7 +400,6 @@ export default function Home() {
           >
             نحت جسمك ورعايتك الصحية
             <br />
-            {/* Animated gradient text */}
             <motion.span
               style={{
                 background: "linear-gradient(90deg, #0D9488, #2D6A4F, #52B788, #0D9488)",
@@ -306,7 +417,6 @@ export default function Home() {
             </motion.span>
           </motion.h1>
 
-          {/* Sub-headline */}
           <motion.p
             {...fadeUp(0.3)}
             style={{
@@ -318,7 +428,6 @@ export default function Home() {
             وتمنحك نتائج حقيقية مستدامة.
           </motion.p>
 
-          {/* CTA buttons */}
           <motion.div
             {...fadeUp(0.45)}
             style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}
@@ -359,7 +468,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          MINI DASHBOARD PREVIEW — 3-D scroll
+          MINI DASHBOARD PREVIEW
       ══════════════════════════════════════════════════════════════ */}
       <section ref={dashboardRef} style={{ padding: "80px 16px", overflow: "hidden", backgroundColor: "#F7F3EC" }}>
         <motion.div {...inView(0)} style={{ textAlign: "center", maxWidth: 576, margin: "0 auto 56px" }}>
@@ -380,7 +489,6 @@ export default function Home() {
             }}
           >
             <div style={{ backgroundColor: "#fff", border: "1px solid #E7E5E4" }}>
-              {/* Title bar */}
               <div style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "16px 24px", borderBottom: "1px solid #F5F5F4", backgroundColor: "#FAFAF9",
@@ -393,7 +501,6 @@ export default function Home() {
                 <span style={{ fontSize: 14, fontWeight: 600, color: "#78716C" }}>لوحة التحكم — حياة نظيفة</span>
                 <Heart style={{ width: 20, height: 20, color: "#0D9488" }} />
               </div>
-              {/* Cards */}
               <div style={{ padding: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
                 <div style={{ borderRadius: 16, padding: 20, backgroundColor: "#F0FDFA", border: "1px solid #99F6E4" }}>
                   <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 4, color: "#0D9488" }}>أيام الالتزام</p>
@@ -470,7 +577,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          STATS — animated counters
+          STATS
       ══════════════════════════════════════════════════════════════ */}
       <section style={{ padding: "80px 16px", backgroundColor: "#F7F3EC" }}>
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -501,7 +608,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          BENTO GRID — Services (stagger + hover lift + icon rotation + glow)
+          BENTO GRID — Services
       ══════════════════════════════════════════════════════════════ */}
       <section style={{ padding: "80px 16px", backgroundColor: "#F7F3EC" }}>
         <div className="max-w-5xl mx-auto">
@@ -509,53 +616,31 @@ export default function Home() {
             <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.5rem)", fontWeight: 900, marginBottom: 12, color: "#1C1917" }}>
               خدماتنا المتكاملة
             </h2>
-            <p style={{ fontSize: 18, color: "#57534E" }}>
-              كل ما تحتاجه لرحلة صحية ناجحة في مكان واحد
-            </p>
+            <p style={{ fontSize: 18, color: "#57534E" }}>كل ما تحتاجه لرحلة صحية ناجحة في مكان واحد</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-[auto_auto] gap-5">
-
-            {/* Card 1 */}
             <motion.div
               variants={cardVars} initial="hidden" whileInView="visible" whileHover="hover"
               viewport={{ once: true }} transition={{ delay: 0.1 }}
-              style={{
-                padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16,
-                backgroundColor: "#F0FDFA", border: "1px solid #99F6E4",
-                position: "relative", overflow: "hidden", cursor: "default",
-              }}
+              style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#F0FDFA", border: "1px solid #99F6E4", position: "relative", overflow: "hidden", cursor: "default" }}
             >
               <GlowBlob color="#0D948840" delay={0} />
-              <motion.div variants={iconVars}>
-                <Dumbbell style={{ width: 40, height: 40, color: "#0D9488" }} />
-              </motion.div>
+              <motion.div variants={iconVars}><Dumbbell style={{ width: 40, height: 40, color: "#0D9488" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#134E4A" }}>برامج التدريب المخصصة</h3>
-              <p style={{ lineHeight: 1.7, color: "#115E59" }}>
-                خطط تمرين فردية من مدربين معتمدين دولياً تناسب مستواك وأهدافك الشخصية
-              </p>
+              <p style={{ lineHeight: 1.7, color: "#115E59" }}>خطط تمرين فردية من مدربين معتمدين دولياً تناسب مستواك وأهدافك الشخصية</p>
             </motion.div>
 
-            {/* Card 2 — tall (row-span-2) */}
             <motion.div
               variants={cardVars} initial="hidden" whileInView="visible" whileHover="hover"
               viewport={{ once: true }} transition={{ delay: 0.2 }}
               className="md:row-span-2"
-              style={{
-                padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16,
-                backgroundColor: "#FFFBEB", border: "1px solid #FDE68A",
-                position: "relative", overflow: "hidden", cursor: "default",
-              }}
+              style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", position: "relative", overflow: "hidden", cursor: "default" }}
             >
               <GlowBlob color="#D9770640" delay={1} />
-              <motion.div variants={iconVars}>
-                <Apple style={{ width: 40, height: 40, color: "#D97706" }} />
-              </motion.div>
+              <motion.div variants={iconVars}><Apple style={{ width: 40, height: 40, color: "#D97706" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#78350F" }}>التغذية العلاجية</h3>
-              <p style={{ lineHeight: 1.7, color: "#92400E" }}>
-                أنظمة غذائية مخصصة وعلمية بإشراف أخصائيي التغذية المعتمدين الذين يفهمون احتياجات جسمك
-              </p>
-              {/* Nutrition mock */}
+              <p style={{ lineHeight: 1.7, color: "#92400E" }}>أنظمة غذائية مخصصة وعلمية بإشراف أخصائيي التغذية المعتمدين الذين يفهمون احتياجات جسمك</p>
               <div style={{ marginTop: "auto", borderRadius: 16, padding: 16, backgroundColor: "white", border: "1px solid #FDE68A" }}>
                 <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 12, color: "#92400E" }}>خطة وجبات اليوم</p>
                 {["إفطار صحي — 400 سعرة", "وجبة متوسطة — 600 سعرة", "عشاء خفيف — 350 سعرة"].map((meal, i) => (
@@ -576,53 +661,34 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Card 3 */}
             <motion.div
               variants={cardVars} initial="hidden" whileInView="visible" whileHover="hover"
               viewport={{ once: true }} transition={{ delay: 0.3 }}
-              style={{
-                padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16,
-                backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0",
-                position: "relative", overflow: "hidden", cursor: "default",
-              }}
+              style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0", position: "relative", overflow: "hidden", cursor: "default" }}
             >
               <GlowBlob color="#05966940" delay={0.5} />
-              <motion.div variants={iconVars}>
-                <Activity style={{ width: 40, height: 40, color: "#059669" }} />
-              </motion.div>
+              <motion.div variants={iconVars}><Activity style={{ width: 40, height: 40, color: "#059669" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#064E3B" }}>متابعة التقدم الأسبوعي</h3>
-              <p style={{ lineHeight: 1.7, color: "#065F46" }}>
-                تقارير تفصيلية ولوحة ذكية تعكس تطورك الحقيقي أسبوعاً بأسبوع
-              </p>
+              <p style={{ lineHeight: 1.7, color: "#065F46" }}>تقارير تفصيلية ولوحة ذكية تعكس تطورك الحقيقي أسبوعاً بأسبوع</p>
             </motion.div>
 
-            {/* Card 4 — wide (col-span-2) */}
             <motion.div
               variants={cardVars} initial="hidden" whileInView="visible" whileHover="hover"
               viewport={{ once: true }} transition={{ delay: 0.4 }}
               className="md:col-span-2"
-              style={{
-                padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16,
-                backgroundColor: "#F0FDFA", border: "1px solid #99F6E4",
-                position: "relative", overflow: "hidden", cursor: "default",
-              }}
+              style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#F0FDFA", border: "1px solid #99F6E4", position: "relative", overflow: "hidden", cursor: "default" }}
             >
               <GlowBlob color="#0D948830" delay={1.5} />
-              <motion.div variants={iconVars}>
-                <BookOpen style={{ width: 40, height: 40, color: "#0D9488" }} />
-              </motion.div>
+              <motion.div variants={iconVars}><BookOpen style={{ width: 40, height: 40, color: "#0D9488" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#134E4A" }}>مكتبة المحتوى الصحي</h3>
-              <p style={{ lineHeight: 1.7, color: "#115E59" }}>
-                مئات المقالات والفيديوهات التعليمية المتخصصة لبناء عادات صحية واعية ومستدامة تدوم طوال العمر
-              </p>
+              <p style={{ lineHeight: 1.7, color: "#115E59" }}>مئات المقالات والفيديوهات التعليمية المتخصصة لبناء عادات صحية واعية ومستدامة تدوم طوال العمر</p>
             </motion.div>
-
           </div>
         </div>
       </section>
 
       {/* ══════════════════════════════════════════════════════════════
-          CTA BANNER — animated circles inside
+          CTA BANNER
       ══════════════════════════════════════════════════════════════ */}
       <section style={{ padding: "96px 16px", backgroundColor: "#F7F3EC" }}>
         <motion.div
@@ -635,75 +701,28 @@ export default function Home() {
             boxShadow: "0 24px 64px rgba(6,78,59,0.35)",
           }}
         >
-          {/* Animated decorative circles */}
-          <motion.div
-            animate={{ y: [-10, 10, -10], x: [-5, 8, -5] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              position: "absolute", top: 0, right: 0,
-              width: 256, height: 256, borderRadius: "50%",
-              backgroundColor: "#34D399", opacity: 0.10,
-              transform: "translate(25%, -50%)", pointerEvents: "none",
-            }}
-          />
-          <motion.div
-            animate={{ y: [10, -10, 10], x: [5, -8, 5] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              position: "absolute", bottom: 0, left: 0,
-              width: 192, height: 192, borderRadius: "50%",
-              backgroundColor: "#6EE7B7", opacity: 0.10,
-              transform: "translate(-25%, 50%)", pointerEvents: "none",
-            }}
-          />
-          <motion.div
-            animate={{ scale: [1, 1.25, 1], opacity: [0.04, 0.12, 0.04] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            style={{
-              position: "absolute", top: "50%", left: "50%",
-              width: 320, height: 320, borderRadius: "50%",
-              backgroundColor: "#A7F3D0",
-              transform: "translate(-50%, -50%)", pointerEvents: "none",
-            }}
-          />
+          <motion.div animate={{ y: [-10, 10, -10], x: [-5, 8, -5] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            style={{ position: "absolute", top: 0, right: 0, width: 256, height: 256, borderRadius: "50%", backgroundColor: "#34D399", opacity: 0.10, transform: "translate(25%, -50%)", pointerEvents: "none" }} />
+          <motion.div animate={{ y: [10, -10, 10], x: [5, -8, 5] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+            style={{ position: "absolute", bottom: 0, left: 0, width: 192, height: 192, borderRadius: "50%", backgroundColor: "#6EE7B7", opacity: 0.10, transform: "translate(-25%, 50%)", pointerEvents: "none" }} />
+          <motion.div animate={{ scale: [1, 1.25, 1], opacity: [0.04, 0.12, 0.04] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            style={{ position: "absolute", top: "50%", left: "50%", width: 320, height: 320, borderRadius: "50%", backgroundColor: "#A7F3D0", transform: "translate(-50%, -50%)", pointerEvents: "none" }} />
 
           <div style={{ position: "relative", zIndex: 10 }}>
-            <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", fontWeight: 900, color: "white", marginBottom: 16 }}>
-              ابدأ تحولك الصحي اليوم
-            </h2>
+            <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", fontWeight: 900, color: "white", marginBottom: 16 }}>ابدأ تحولك الصحي اليوم</h2>
             <p style={{ fontSize: "clamp(1rem, 2vw, 1.2rem)", color: "#A7F3D0", lineHeight: 1.8, maxWidth: 560, margin: "0 auto 36px" }}>
-              انضم إلى أكثر من 500 عميل حققوا أهدافهم الصحية مع فريقنا المتخصص.
-              رحلتك تبدأ بخطوة واحدة.
+              انضم إلى أكثر من 500 عميل حققوا أهدافهم الصحية مع فريقنا المتخصص. رحلتك تبدأ بخطوة واحدة.
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}>
-              {/* BUTTON 1 → opens video modal */}
               <MagneticButton>
-                <button
-                  onClick={() => setVideoOpen(true)}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "16px 32px", borderRadius: 18,
-                    backgroundColor: "white", color: "#064E3B", fontWeight: 700, fontSize: 17,
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
-                    border: "none", cursor: "pointer", fontFamily: "inherit",
-                  }}
-                >
-                  ابدأ رحلتك
-                  <ArrowLeft style={{ width: 20, height: 20 }} />
+                <button onClick={() => setVideoOpen(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "16px 32px", borderRadius: 18, backgroundColor: "white", color: "#064E3B", fontWeight: 700, fontSize: 17, boxShadow: "0 4px 20px rgba(0,0,0,0.18)", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
+                  ابدأ رحلتك <ArrowLeft style={{ width: 20, height: 20 }} />
                 </button>
               </MagneticButton>
-              {/* BUTTON 2 → opens about modal */}
               <MagneticButton>
-                <button
-                  onClick={() => setAboutOpen(true)}
-                  style={{
-                    display: "inline-flex", alignItems: "center", gap: 8,
-                    padding: "16px 32px", borderRadius: 18,
-                    color: "white", fontWeight: 700, fontSize: 17,
-                    border: "2px solid rgba(255,255,255,0.45)",
-                    backgroundColor: "transparent", cursor: "pointer", fontFamily: "inherit",
-                  }}
-                >
+                <button onClick={() => setAboutOpen(true)}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "16px 32px", borderRadius: 18, color: "white", fontWeight: 700, fontSize: 17, border: "2px solid rgba(255,255,255,0.45)", backgroundColor: "transparent", cursor: "pointer", fontFamily: "inherit" }}>
                   تعرف علينا
                 </button>
               </MagneticButton>
@@ -735,39 +754,37 @@ export default function Home() {
       </footer>
 
       {/* ══════════════════════════════════════════════════════════════
-          MODAL 1 — About Us
+          MODAL 1 — About Us (FIX 2: enhanced content)
       ══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {aboutOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={() => setAboutOpen(false)}
             style={{
               position: "fixed", inset: 0,
               backgroundColor: "rgba(20,30,25,0.55)",
-              backdropFilter: "blur(8px)",
-              WebkitBackdropFilter: "blur(8px)",
+              backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
               zIndex: 200,
               display: "flex", alignItems: "center", justifyContent: "center",
+              padding: "20px 16px",
             }}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
               onClick={(e) => e.stopPropagation()}
               style={{
-                maxWidth: 540, width: "90%",
+                maxWidth: 680, width: "100%",
                 backgroundColor: "#F8F5F0",
-                borderRadius: 24, padding: 40,
+                borderRadius: 24, padding: 48,
                 boxShadow: "0 30px 80px rgba(0,0,0,0.25)",
                 position: "relative",
                 direction: "rtl",
                 fontFamily: "'Cairo','Segoe UI',sans-serif",
+                maxHeight: "90vh", overflowY: "auto",
               }}
             >
               {/* Close */}
@@ -792,52 +809,91 @@ export default function Home() {
                 width: 56, height: 56, borderRadius: "50%",
                 background: "linear-gradient(135deg, #2D6A4F, #52B788)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                margin: "0 auto",
-                boxShadow: "0 6px 20px rgba(45,106,79,0.30)",
+                margin: "0 auto", boxShadow: "0 6px 20px rgba(45,106,79,0.30)",
               }}>
                 <Sparkles size={24} color="white" />
               </div>
 
               {/* Title */}
-              <h2 style={{
-                fontSize: 26, fontWeight: 900, color: "#1A2E22",
-                textAlign: "center", marginTop: 16, marginBottom: 6,
-              }}>
+              <h2 style={{ fontSize: 26, fontWeight: 900, color: "#1A2E22", textAlign: "center", marginTop: 16, marginBottom: 6 }}>
                 عيادة Clean Life
               </h2>
 
               {/* Subtitle */}
-              <p style={{
-                color: "#7AA090", fontSize: 13,
-                letterSpacing: "0.15em", textTransform: "uppercase" as const,
-                textAlign: "center", marginBottom: 24,
-              }}>
-                رؤيتنا ورسالتنا
+              <p style={{ color: "#7AA090", fontSize: 13, letterSpacing: "0.15em", textTransform: "uppercase", textAlign: "center", marginBottom: 20 }}>
+                رحلة التحول الكاملة
               </p>
 
-              {/* Body */}
-              <p style={{
-                fontSize: 15, color: "#4A6B5C", lineHeight: 1.9,
-                textAlign: "center", marginBottom: 28,
-              }}>
-                عيادة Clean Life: هدفنا هو إعادة صياغة نمط حياتك للأفضل، ومساعدتك على التخلص من
-                العادات السلبية وبناء جسد قوي وعقل سليم.
+              {/* Opening paragraph */}
+              <p style={{ fontSize: 15, color: "#4A6B5C", lineHeight: 1.9, textAlign: "center", marginBottom: 8 }}>
+                في عيادة Clean Life، نؤمن أن الصحة ليست مجرد رقم على الميزان، بل أسلوب حياة متكامل يجمع بين الجسد والعقل والروح. منذ تأسيسنا، ساعدنا أكثر من 500 شخص على إعادة اكتشاف أفضل نسخة من أنفسهم.
               </p>
 
-              {/* Feature pills */}
-              <div style={{ display: "flex", gap: 10, justifyContent: "center", marginBottom: 28, flexWrap: "wrap" as const }}>
-                {["خبرة طبية", "متابعة شخصية", "نتائج علمية"].map((pill) => (
-                  <span
-                    key={pill}
-                    style={{
-                      padding: "6px 16px", borderRadius: 999,
-                      backgroundColor: "rgba(61,122,94,0.10)",
-                      color: "#2D6A4F", fontSize: 13, fontWeight: 700,
-                      border: "1px solid rgba(61,122,94,0.20)",
-                    }}
-                  >
-                    {pill}
-                  </span>
+              {/* Section header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 24, marginBottom: 12 }}>
+                <div style={{ width: 3, height: 22, borderRadius: 2, backgroundColor: "#3D7A5E", flexShrink: 0 }} />
+                <p style={{ fontSize: 16, fontWeight: 800, color: "#1A2E22" }}>ماذا يميزنا؟</p>
+              </div>
+
+              {/* Feature rows */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[
+                  {
+                    Icon: HeartPulse,
+                    title: "نهج علمي مدروس",
+                    desc: "خطط مبنية على أحدث الأبحاث في التغذية وعلوم الرياضة، مخصصة لتناسب جسمك وأهدافك بدقة.",
+                  },
+                  {
+                    Icon: Users,
+                    title: "فريق من الخبراء",
+                    desc: "أخصائيو تغذية معتمدون، مدربون شخصيون محترفون، وأطباء متخصصون متاحون لمتابعة رحلتك.",
+                  },
+                  {
+                    Icon: TrendingUp,
+                    title: "نتائج مستدامة",
+                    desc: "نركز على بناء عادات تدوم مدى الحياة، لا على حلول سريعة وقتية. تحولك يبدأ من الداخل.",
+                  },
+                ].map(({ Icon, title, desc }) => (
+                  <div key={title} style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                      background: "linear-gradient(135deg, #2D6A4F22, #52B78822)",
+                      border: "1.5px solid rgba(61,122,94,0.20)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                    }}>
+                      <Icon size={18} color="#3D7A5E" />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 800, color: "#1A2E22", marginBottom: 4 }}>{title}</p>
+                      <p style={{ fontSize: 13, color: "#6B8C7E", lineHeight: 1.7 }}>{desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quote box */}
+              <div style={{
+                marginTop: 24,
+                backgroundColor: "rgba(61,122,94,0.06)",
+                borderRight: "3px solid #3D7A5E",
+                padding: "16px 20px", borderRadius: 12,
+              }}>
+                <p style={{ fontSize: 14, fontStyle: "italic", color: "#2D6A4F", fontWeight: 600, lineHeight: 1.7 }}>
+                  "هدفنا ليس فقط تغيير شكلك، بل تغيير علاقتك بنفسك وبصحتك للأبد."
+                </p>
+              </div>
+
+              {/* Stats row */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 24, marginBottom: 24 }}>
+                {[
+                  { num: "+500", label: "عميل سعيد" },
+                  { num: "98%",  label: "معدل الرضا" },
+                  { num: "12+",  label: "سنة خبرة"  },
+                ].map(({ num, label }) => (
+                  <div key={label} style={{ textAlign: "center", padding: "16px 8px", backgroundColor: "white", borderRadius: 14, border: "1px solid rgba(190,175,155,0.22)" }}>
+                    <p style={{ fontSize: 22, fontWeight: 900, color: "#3D7A5E", lineHeight: 1.1 }}>{num}</p>
+                    <p style={{ fontSize: 11, color: "#aaa", fontWeight: 600, marginTop: 4 }}>{label}</p>
+                  </div>
                 ))}
               </div>
 
@@ -846,8 +902,7 @@ export default function Home() {
                 onClick={() => { setAboutOpen(false); setVideoOpen(true); }}
                 style={{
                   width: "100%", padding: "14px 24px", borderRadius: 14,
-                  backgroundColor: "transparent",
-                  border: "2px solid #2D6A4F",
+                  backgroundColor: "transparent", border: "2px solid #2D6A4F",
                   color: "#2D6A4F", fontWeight: 700, fontSize: 15,
                   fontFamily: "inherit", cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
@@ -864,26 +919,23 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ══════════════════════════════════════════════════════════════
-          MODAL 2 — Cinematic Video
+          MODAL 2 — Cinematic Video (FIX 3: gradient fallback)
       ══════════════════════════════════════════════════════════════ */}
       <AnimatePresence>
         {videoOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             style={{
               position: "fixed", inset: 0,
               backgroundColor: "rgba(0,0,0,0.92)",
               zIndex: 300,
-              display: "flex", flexDirection: "column" as const,
+              display: "flex", flexDirection: "column",
               alignItems: "center", justifyContent: "center",
-              direction: "rtl",
-              fontFamily: "'Cairo','Segoe UI',sans-serif",
+              direction: "rtl", fontFamily: "'Cairo','Segoe UI',sans-serif",
             }}
           >
-            {/* Close — top left */}
+            {/* Close */}
             <button
               onClick={() => setVideoOpen(false)}
               style={{
@@ -900,27 +952,28 @@ export default function Home() {
               <X size={20} color="white" />
             </button>
 
-            {/* Mute toggle — top right */}
-            <button
-              onClick={() => setMuted(v => !v)}
-              style={{
-                position: "absolute", top: 24, right: 24,
-                width: 40, height: 40, borderRadius: "50%",
-                backgroundColor: "rgba(255,255,255,0.10)",
-                border: "none", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                transition: "background 0.15s", zIndex: 10,
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.20)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.10)")}
-            >
-              {muted ? <VolumeX size={20} color="white" /> : <Volume2 size={20} color="white" />}
-            </button>
+            {/* Mute toggle */}
+            {!videoError && (
+              <button
+                onClick={() => setMuted(v => !v)}
+                style={{
+                  position: "absolute", top: 24, right: 24,
+                  width: 40, height: 40, borderRadius: "50%",
+                  backgroundColor: "rgba(255,255,255,0.10)",
+                  border: "none", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  transition: "background 0.15s", zIndex: 10,
+                }}
+                onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.20)")}
+                onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.10)")}
+              >
+                {muted ? <VolumeX size={20} color="white" /> : <Volume2 size={20} color="white" />}
+              </button>
+            )}
 
-            {/* Video container */}
+            {/* Video / fallback container */}
             <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               style={{
@@ -931,44 +984,82 @@ export default function Home() {
                 boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
               }}
             >
-              <video
-                src="/videos/motivation.mp4"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                autoPlay
-                loop
-                muted={muted}
-                playsInline
-              />
-
-              {/* Gradient overlay */}
-              <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
-                background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
-                pointerEvents: "none",
-              }} />
-
-              {/* Text overlay */}
-              <div style={{
-                position: "absolute", bottom: 40, left: "50%",
-                transform: "translateX(-50%)",
-                textAlign: "center", zIndex: 2,
-                width: "100%",
-              }}>
-                <p style={{
-                  color: "rgba(255,255,255,0.7)",
-                  letterSpacing: "0.2em", fontSize: 12, fontWeight: 600,
-                }}>
-                  ابدأ رحلة التحول
-                </p>
-                <p style={{
-                  fontSize: 32, fontWeight: 900, color: "white", marginTop: 8,
-                }}>
-                  حياتك تبدأ الآن
-                </p>
-              </div>
+              {videoError ? (
+                /* ── FIX 3: Animated gradient fallback ── */
+                <>
+                  <motion.div
+                    style={{
+                      position: "absolute", inset: 0,
+                      background: "linear-gradient(135deg, #1B4332, #2D6A4F, #40916C, #52B788)",
+                      backgroundSize: "300% 300%",
+                    }}
+                    animate={{ backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"] }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  />
+                  {/* Pulsing glow circle */}
+                  <motion.div
+                    animate={{ scale: [1, 1.4, 1], opacity: [0.15, 0.35, 0.15] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    style={{
+                      position: "absolute", top: "50%", left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      width: 280, height: 280, borderRadius: "50%",
+                      backgroundColor: "#52B788", filter: "blur(40px)",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  {/* Centered text */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    style={{
+                      position: "absolute", top: "50%", left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      textAlign: "center", zIndex: 2, width: "100%", padding: "0 32px",
+                    }}
+                  >
+                    <p style={{ fontSize: 48, fontWeight: 900, color: "white", lineHeight: 1.2 }}>
+                      حياتك تبدأ من هنا
+                    </p>
+                    <p style={{ fontSize: 18, color: "rgba(255,255,255,0.8)", marginTop: 16, lineHeight: 1.6 }}>
+                      نحن نبني معك المستقبل الذي تستحقه
+                    </p>
+                  </motion.div>
+                </>
+              ) : (
+                /* ── Normal video ── */
+                <>
+                  <video
+                    src="/videos/motivation.mp4"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    autoPlay loop muted={muted} playsInline
+                    onError={() => setVideoError(true)}
+                  />
+                  {/* Gradient overlay */}
+                  <div style={{
+                    position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
+                    background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
+                    pointerEvents: "none",
+                  }} />
+                  {/* Text overlay */}
+                  <div style={{
+                    position: "absolute", bottom: 40, left: "50%",
+                    transform: "translateX(-50%)",
+                    textAlign: "center", zIndex: 2, width: "100%",
+                  }}>
+                    <p style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.2em", fontSize: 12, fontWeight: 600 }}>
+                      ابدأ رحلة التحول
+                    </p>
+                    <p style={{ fontSize: 32, fontWeight: 900, color: "white", marginTop: 8 }}>
+                      حياتك تبدأ الآن
+                    </p>
+                  </div>
+                </>
+              )}
             </motion.div>
 
-            {/* Skip to dashboard button */}
+            {/* Skip button */}
             <div style={{ marginTop: 24 }}>
               <MagneticButton>
                 <button

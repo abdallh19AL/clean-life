@@ -18,6 +18,7 @@ const navLinks = [
   { href: "/dashboard/nutrition",    label: "الخطة الغذائية", icon: Utensils        },
   { href: "/dashboard/workout",      label: "جدول التدريب",   icon: Dumbbell        },
   { href: "/dashboard/appointments", label: "المواعيد",        icon: CalendarDays    },
+  { href: "/dashboard/calculator",   label: "حاسبة التغذية",  icon: Calculator      },
 ];
 
 /* ─── Top nav links ──────────────────────────────────────────────────────── */

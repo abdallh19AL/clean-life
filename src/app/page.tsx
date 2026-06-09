@@ -324,31 +324,33 @@ export default function Home() {
             style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}
           >
             <MagneticButton>
-              <Link
-                href="/dashboard"
+              <button
+                onClick={() => setVideoOpen(true)}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "16px 32px", borderRadius: 18, textDecoration: "none",
+                  padding: "16px 32px", borderRadius: 18,
                   backgroundColor: "#0D9488", color: "white", fontWeight: 700, fontSize: 17,
                   boxShadow: "0 8px 32px rgba(13,148,136,0.35)",
+                  border: "none", cursor: "pointer", fontFamily: "inherit",
                 }}
               >
-                ابدأ رحلتك الآن
+                ابدأ رحلتك
                 <ArrowLeft style={{ width: 20, height: 20 }} />
-              </Link>
+              </button>
             </MagneticButton>
             <MagneticButton>
-              <Link
-                href="/dashboard"
+              <button
+                onClick={() => setAboutOpen(true)}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "16px 32px", borderRadius: 18, textDecoration: "none",
+                  padding: "16px 32px", borderRadius: 18,
                   backgroundColor: "white", color: "#0D9488", fontWeight: 700, fontSize: 17,
                   border: "2px solid #0D9488",
+                  cursor: "pointer", fontFamily: "inherit",
                 }}
               >
-                تعرف علينا أكثر
-              </Link>
+                تعرف علينا
+              </button>
             </MagneticButton>
           </motion.div>
         </motion.div>

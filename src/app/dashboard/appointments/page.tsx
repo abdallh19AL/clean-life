@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Plus, Clock, User, CheckCircle, AlertCircle } from "lucide-react";
 
@@ -172,11 +173,10 @@ function AppointmentCard({ appt, delay }: { appt: typeof appointments[0]; delay:
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function AppointmentsPage() {
-  const [showToast, setShowToast] = useState(false);
+  const router = useRouter();
 
   function handleBook() {
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
+    router.push("/dashboard/appointments/book");
   }
 
   return (
@@ -256,22 +256,6 @@ export default function AppointmentsPage() {
         حجز موعد جديد
       </motion.button>
 
-      {/* Toast */}
-      <motion.div
-        initial={false}
-        animate={{ opacity: showToast ? 1 : 0, y: showToast ? 0 : 16 }}
-        transition={{ duration: 0.3 }}
-        style={{
-          position: "fixed", bottom: 90, left: 32,
-          background: "white", border: "1.5px solid rgba(61,122,94,0.25)",
-          borderRadius: 14, padding: "12px 20px",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-          fontSize: 14, fontWeight: 700, color: "#3D7A5E",
-          pointerEvents: "none", zIndex: 50,
-        }}
-      >
-        ✓ سيتم التواصل معك لتأكيد الموعد
-      </motion.div>
     </motion.div>
   );
 }

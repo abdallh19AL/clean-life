@@ -103,9 +103,9 @@ function MetricCard({
 }
 
 function QuickActionButton({
-  label, icon: Icon, bg, color,
+  label, icon: Icon, bg, color, onClick,
 }: {
-  label: string; icon: React.ElementType; bg: string; color: string;
+  label: string; icon: React.ElementType; bg: string; color: string; onClick?: () => void;
 }) {
   return (
     <motion.button
@@ -113,6 +113,7 @@ function QuickActionButton({
       whileHover={{ y: -5, boxShadow: `0 10px 24px ${color}35` }}
       whileTap={{ scale: 0.96 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      onClick={onClick}
       style={{
         background:     bg,
         border:         "none",
@@ -427,6 +428,7 @@ export default function DashboardPage() {
               whileHover={{ backgroundColor: "#2D6A4F", color: "#fff" }}
               whileTap={{ scale: 0.97 }}
               transition={{ duration: 0.18 }}
+              onClick={() => router.push("/dashboard/appointments/book")}
               style={{
                 background:   "transparent",
                 color:        "#2D6A4F",
@@ -472,10 +474,10 @@ export default function DashboardPage() {
             transition={{ delayChildren: 0.48 }}
             style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}
           >
-            <QuickActionButton label="تسجيل الوزن اليومي" icon={Scale}    bg="rgba(61,122,94,0.10)"   color="#3D7A5E" />
-            <QuickActionButton label="تسجيل الماء"         icon={Droplets} bg="rgba(91,140,191,0.10)"  color="#5B8CBF" />
-            <QuickActionButton label="عرض خطة التغذية"    icon={Utensils} bg="rgba(224,122,95,0.10)"  color="#E07A5F" />
-            <QuickActionButton label="جدول التمارين"       icon={Dumbbell} bg="rgba(126,87,194,0.10)"  color="#7E57C2" />
+            <QuickActionButton label="تسجيل الوزن اليومي" icon={Scale}    bg="rgba(61,122,94,0.10)"   color="#3D7A5E" onClick={() => router.push("/dashboard/weight")} />
+            <QuickActionButton label="تسجيل الماء"         icon={Droplets} bg="rgba(91,140,191,0.10)"  color="#5B8CBF" onClick={() => router.push("/dashboard/water")} />
+            <QuickActionButton label="عرض خطة التغذية"    icon={Utensils} bg="rgba(224,122,95,0.10)"  color="#E07A5F" onClick={() => router.push("/dashboard/nutrition")} />
+            <QuickActionButton label="جدول التمارين"       icon={Dumbbell} bg="rgba(126,87,194,0.10)"  color="#7E57C2" onClick={() => router.push("/dashboard/workout")} />
           </motion.div>
         </div>
       </motion.div>

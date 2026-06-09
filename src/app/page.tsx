@@ -212,7 +212,7 @@ function LandingNavbar() {
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
         borderBottom: "1px solid rgba(190,175,155,0.20)",
-        padding: "0 28px",
+        padding: "0 16px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         fontFamily: "'Cairo','Segoe UI',sans-serif",
       }}
@@ -234,7 +234,7 @@ function LandingNavbar() {
       </div>
 
       {/* CENTER: Nav links */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <div className="hidden md:flex" style={{ alignItems: "center", gap: 4 }}>
         {NAV_LINKS.map(({ href, label, Icon }) => (
           <Link
             key={href}
@@ -263,7 +263,7 @@ function LandingNavbar() {
       </div>
 
       {/* LEFT: Auth buttons */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
         <Link
           href="/login"
           style={{
@@ -1016,13 +1016,14 @@ export default function Home() {
                     style={{
                       position: "absolute", top: "50%", left: "50%",
                       transform: "translate(-50%, -50%)",
-                      textAlign: "center", zIndex: 2, width: "100%", padding: "0 32px",
+                      textAlign: "center", zIndex: 2, width: "100%",
+                      padding: "0 40px", boxSizing: "border-box",
                     }}
                   >
-                    <p style={{ fontSize: 48, fontWeight: 900, color: "white", lineHeight: 1.2 }}>
+                    <p style={{ fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 900, color: "white", lineHeight: 1.2, wordBreak: "break-word", textAlign: "center" }}>
                       حياتك تبدأ من هنا
                     </p>
-                    <p style={{ fontSize: 18, color: "rgba(255,255,255,0.8)", marginTop: 16, lineHeight: 1.6 }}>
+                    <p style={{ fontSize: 18, color: "rgba(255,255,255,0.8)", marginTop: 16, lineHeight: 1.6, textAlign: "center", padding: "0 20px" }}>
                       نحن نبني معك المستقبل الذي تستحقه
                     </p>
                   </motion.div>

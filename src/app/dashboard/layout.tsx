@@ -103,6 +103,7 @@ function DropdownItem({
 function TopNavbar() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -116,15 +117,25 @@ function TopNavbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Redirect to login on session expiry or sign-out
+  // Session + auth state (chunked-cookie safe)
   useEffect(() => {
-    const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") {
-        router.push("/login");
+    const supabase = createClient()
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) setUser(session.user)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          setUser(session.user)
+        } else {
+          window.location.href = '/login'
+        }
       }
-    });
-    return () => subscription.unsubscribe();
+    )
+
+    return () => subscription.unsubscribe()
   }, []);
 
   async function handleLogout() {
@@ -198,9 +209,12 @@ function TopNavbar() {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 11, fontWeight: 800, color: "white",
           }}>
-            AK
+            {(user?.user_metadata?.full_name ?? user?.email ?? "U")
+              .split(" ").slice(0, 2).map((w: string) => w[0]).join("").toUpperCase() || "U"}
           </div>
-          <span style={{ fontSize: 13, fontWeight: 700, color: "#2D6A4F" }}>أحمد</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: "#2D6A4F" }}>
+            {user?.user_metadata?.full_name?.split(" ")[0] ?? user?.email?.split("@")[0] ?? ""}
+          </span>
           <motion.div
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
@@ -230,8 +244,10 @@ function TopNavbar() {
             >
               {/* User info header */}
               <div style={{ padding: "8px 12px 10px" }}>
-                <p style={{ fontSize: 13, fontWeight: 800, color: "#1a1a1a", marginBottom: 2 }}>أحمد خليل</p>
-                <p style={{ fontSize: 11, color: "#bbb" }}>ahmad@example.com</p>
+                <p style={{ fontSize: 13, fontWeight: 800, color: "#1a1a1a", marginBottom: 2 }}>
+                  {user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? ""}
+                </p>
+                <p style={{ fontSize: 11, color: "#bbb" }}>{user?.email ?? ""}</p>
               </div>
 
               <div style={{ height: 1, background: "rgba(190,175,155,0.20)", margin: "4px 0 6px" }} />

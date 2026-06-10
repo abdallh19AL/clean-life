@@ -249,15 +249,26 @@ export default function DashboardPage() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.push("/login");
-        return;
+    const supabase = createClient()
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user)
       }
-      setUser(user);
-    });
-  }, [router]);
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          setUser(session.user)
+        } else {
+          window.location.href = '/login'
+        }
+      }
+    )
+
+    return () => subscription.unsubscribe()
+  }, [])
 
   const userName =
     user?.user_metadata?.full_name ||

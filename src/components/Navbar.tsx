@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/utils/supabase";
+import { createClient } from "@/utils/supabase/client";
 import { LayoutDashboard, LogIn, Menu, X, Leaf } from "lucide-react";
 
 export default function Navbar() {
+  const supabase = createClient();
   const pathname  = usePathname();
   const [user,    setUser]   = useState<any>(null);
   const [isOpen,  setIsOpen] = useState(false);

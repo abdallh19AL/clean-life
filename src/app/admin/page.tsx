@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/utils/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { motion } from 'framer-motion';
 import { Plus, Trash2, Package, LogOut } from 'lucide-react';
 
 export default function AdminDashboard() {
+  const supabase = createClient();
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);

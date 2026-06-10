@@ -84,6 +84,10 @@ export default function LoginPage() {
       setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
       setIsPending(false);
     } else {
+      localStorage.removeItem('supabase.auth.token');
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('sb-')) localStorage.removeItem(key);
+      });
       router.refresh();
       router.push("/dashboard");
     }

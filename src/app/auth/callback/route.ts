@@ -1,5 +1,4 @@
 import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -8,8 +7,6 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
 
-  // In production (Vercel etc.), request.url can be an internal URL.
-  // x-forwarded-host carries the real public hostname.
   const forwardedHost = request.headers.get('x-forwarded-host')
   const isLocal = process.env.NODE_ENV === 'development'
   const base = isLocal
@@ -19,22 +16,24 @@ export async function GET(request: NextRequest) {
       : process.env.NEXT_PUBLIC_SITE_URL ?? origin
 
   if (code) {
-    const cookieStore = await cookies()
+    const redirectUrl = `${base}${next}`
+    const response = NextResponse.redirect(redirectUrl)
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          getAll() { return cookieStore.getAll() },
+          getAll() { return request.cookies.getAll() },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options))
+              response.cookies.set(name, value, options))
           },
         },
       }
     )
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) return NextResponse.redirect(`${base}${next}`)
+    if (!error) return response
   }
 
   return NextResponse.redirect(`${base}/login?error=auth_error`)

@@ -84,6 +84,7 @@ export default function LoginPage() {
       setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
       setIsPending(false);
     } else {
+      router.refresh();
       router.push("/dashboard");
     }
   };

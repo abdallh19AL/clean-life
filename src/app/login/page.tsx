@@ -86,6 +86,7 @@ export default function LoginPage() {
       Object.keys(localStorage).forEach(key => {
         if (key.startsWith('sb-')) localStorage.removeItem(key);
       });
+      await new Promise(resolve => setTimeout(resolve, 500));
       window.location.href = "/dashboard";
     }
   };

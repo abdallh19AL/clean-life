@@ -4,12 +4,12 @@ function getCookie(name: string): string {
   if (typeof document === 'undefined') return ''
   const match = document.cookie.split(';').find(c => c.trim().startsWith(`${name}=`))
   if (!match) return ''
-  return decodeURIComponent(match.trim().slice(name.length + 1))
+  return match.trim().slice(name.length + 1)
 }
 
 function setCookie(name: string, value: string, options: Record<string, any> = {}) {
   if (typeof document === 'undefined') return
-  let cookieStr = `${name}=${encodeURIComponent(value)}`
+  let cookieStr = `${name}=${value}`
   if (options.maxAge) cookieStr += `; Max-Age=${options.maxAge}`
   cookieStr += `; Path=${options.path ?? '/'}`
   if (options.sameSite) cookieStr += `; SameSite=${options.sameSite}`
@@ -36,7 +36,7 @@ export function createClient() {
             const eqIdx = c.trim().indexOf('=')
             return {
               name: c.trim().slice(0, eqIdx),
-              value: decodeURIComponent(c.trim().slice(eqIdx + 1)),
+              value: c.trim().slice(eqIdx + 1),
             }
           }).filter(c => c.name)
         },

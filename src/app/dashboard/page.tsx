@@ -258,10 +258,10 @@ export default function DashboardPage() {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         if (session?.user) {
           setUser(session.user)
-        } else {
+        } else if (event === 'SIGNED_OUT') {
           window.location.href = '/login'
         }
       }

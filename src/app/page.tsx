@@ -19,6 +19,7 @@ import {
   X, Volume2, VolumeX, Sparkles,
   Home as HomeIcon, ShoppingBag, Calculator, HeartPulse,
 } from "lucide-react";
+import SiteNavbar from "@/components/SiteNavbar";
 
 /* ─── Data ───────────────────────────────────────────────────────────────── */
 
@@ -193,122 +194,6 @@ const inView = (delay = 0) => ({
   transition:  { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const },
 });
 
-/* ─── Landing Navbar ─────────────────────────────────────────────────────── */
-
-const NAV_LINKS = [
-  { href: "/",           label: "الرئيسية",      Icon: HomeIcon    },
-  { href: "/store",      label: "المتجر",         Icon: ShoppingBag },
-  { href: "/calculator", label: "حاسبة السعرات", Icon: Calculator  },
-];
-
-function LandingNavbar() {
-  return (
-    <div
-      dir="rtl"
-      style={{
-        position: "sticky", top: 0, zIndex: 100,
-        height: 60, flexShrink: 0,
-        backgroundColor: "rgba(252,250,246,0.85)",
-        backdropFilter: "blur(18px)",
-        WebkitBackdropFilter: "blur(18px)",
-        borderBottom: "1px solid rgba(190,175,155,0.20)",
-        padding: "0 16px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        fontFamily: "'Cairo','Segoe UI',sans-serif",
-      }}
-    >
-      {/* RIGHT: Logo */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-          background: "linear-gradient(135deg, #2D6A4F, #52B788)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 2px 10px rgba(45,106,79,0.28)",
-        }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>
-            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-          </svg>
-        </div>
-        <div>
-          <p style={{ fontSize: 14, fontWeight: 900, color: "#1a2e22", lineHeight: 1.2 }}>Clean Life</p>
-          <p style={{ fontSize: 10, fontWeight: 600, color: "#6B9E80" }}>عيادة الصحة</p>
-        </div>
-      </div>
-
-      {/* CENTER: Nav links */}
-      <div className="hidden md:flex" style={{ alignItems: "center", gap: 4 }}>
-        {NAV_LINKS.map(({ href, label, Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "6px 12px", borderRadius: 10,
-              color: "#4A6B5C", fontSize: 13.5, fontWeight: 600,
-              textDecoration: "none", transition: "background 0.15s, color 0.15s",
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.backgroundColor = "rgba(61,122,94,0.08)";
-              el.style.color = "#2D6A4F";
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.backgroundColor = "transparent";
-              el.style.color = "#4A6B5C";
-            }}
-          >
-            <Icon size={14} />
-            {label}
-          </Link>
-        ))}
-      </div>
-
-      {/* LEFT: Auth buttons */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
-        <Link
-          href="/login"
-          style={{
-            padding: "8px 20px", borderRadius: 12,
-            color: "#2D6A4F", fontSize: 13.5, fontWeight: 700,
-            textDecoration: "none",
-            border: "1.5px solid rgba(45,106,79,0.35)",
-            transition: "all 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLAnchorElement;
-            el.style.backgroundColor = "rgba(61,122,94,0.08)";
-            el.style.borderColor = "#2D6A4F";
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLAnchorElement;
-            el.style.backgroundColor = "transparent";
-            el.style.borderColor = "rgba(45,106,79,0.35)";
-          }}
-        >
-          تسجيل الدخول
-        </Link>
-        <Link
-          href="/login"
-          style={{
-            padding: "8px 20px", borderRadius: 12,
-            color: "white", fontSize: 13.5, fontWeight: 700,
-            textDecoration: "none",
-            background: "linear-gradient(135deg, #2D6A4F, #52B788)",
-            boxShadow: "0 2px 10px rgba(45,106,79,0.28)",
-            transition: "opacity 0.15s",
-          }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "0.9")}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = "1")}
-        >
-          احجز استشارة
-        </Link>
-      </div>
-    </div>
-  );
-}
-
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 
 export default function Home() {
@@ -355,7 +240,7 @@ export default function Home() {
     <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", backgroundColor: "#F7F3EC", color: "#1C1917" }}>
 
       {/* ── FIX 1: Sticky landing navbar ── */}
-      <LandingNavbar />
+      <SiteNavbar ctaLabel="احجز استشارة" ctaHref="/login" />
 
       {/* ══════════════════════════════════════════════════════════════
           HERO

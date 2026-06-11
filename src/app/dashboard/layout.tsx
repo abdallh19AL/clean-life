@@ -102,6 +102,7 @@ function DropdownItem({
 /* ─── Top Navbar ─────────────────────────────────────────────────────────── */
 function TopNavbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -117,26 +118,26 @@ function TopNavbar() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Session + auth state (chunked-cookie safe)
+  // Auth state — getUser() is server-verified; getSession() trusts stale JWTs
   useEffect(() => {
-    const supabase = createClient()
+    const supabase = createClient();
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setUser(session.user)
-    })
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUser(user);
+    });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
-          setUser(session.user)
-        } else if (event === 'SIGNED_OUT') {
-          window.location.href = '/login'
+          setUser(session.user);
+        } else if (event === "SIGNED_OUT") {
+          window.location.href = "/login";
         }
       }
-    )
+    );
 
-    return () => subscription.unsubscribe()
-  }, []);
+    return () => subscription.unsubscribe();
+  }, [pathname]);
 
   async function handleLogout() {
     const supabase = createClient();

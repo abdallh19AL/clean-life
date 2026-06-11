@@ -1,176 +1,84 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Pill, Droplets, FlaskConical,
-  Zap, Dumbbell, Scale, Watch, BookOpen,
-  Home as HomeIcon, ShoppingBag, Calculator,
-  Moon, Sun, Activity, Heart, Star,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import SiteNavbar from "@/components/SiteNavbar";
 
-/* ─── Data ─────────────────────────────────────────────────────────────── */
+/* ─── Types ─────────────────────────────────────────────────────────── */
 
-type Recommendation = {
-  id:          number;
-  title:       string;
-  category:    string;
-  description: string;
-  externalLink: string;
-  bg:          string;
-  iconColor:   string;
-  border:      string;
-  Icon:        LucideIcon;
-  // Enriched fields (new products)
-  price?:    string;
-  rating?:   string;
-  reviews?:  string;
-  features?: string[];
-  tip?:      string;
+type Product = {
+  id:                string;
+  name:              string;
+  description:       string;
+  price:             number;
+  category:          string;
+  image_url:         string;
+  whatsapp_message:  string | null;
+  created_at:        string;
 };
 
-const recommendationsData: Recommendation[] = [
-  /* ── Original 8 ── */
-  {
-    id: 1, title: "بروتين مصل اللبن الطبيعي", category: "مكملات غذائية",
-    description: "مصدر بروتين عالي الجودة مستخلص من مصل اللبن، يدعم بناء العضلات والتعافي بعد التمرين بكفاءة عالية.",
-    externalLink: "#",
-    bg: "#F0FDF4", iconColor: "#16A34A", border: "#BBF7D0", Icon: Pill,
-  },
-  {
-    id: 2, title: "أوميغا 3 عالي التركيز", category: "مكملات غذائية",
-    description: "كبسولات زيت السمك المنقّى تدعم صحة القلب والدماغ وتقلل الالتهابات وتحسن الأداء الرياضي العام.",
-    externalLink: "#",
-    bg: "#F0FDFA", iconColor: "#0D9488", border: "#99F6E4", Icon: Droplets,
-  },
-  {
-    id: 3, title: "كرياتين مونوهيدرات", category: "مكملات غذائية",
-    description: "الأكثر دراسةً علمياً بين المكملات الرياضية، يرفع القوة والقدرة التحملية في تمارين الشدة العالية.",
-    externalLink: "#",
-    bg: "#ECFDF5", iconColor: "#059669", border: "#A7F3D0", Icon: FlaskConical,
-  },
-  {
-    id: 4, title: "حزام تدريب احترافي", category: "معدات تدريب",
-    description: "حزام قطني متين يوفر دعماً استثنائياً لأسفل الظهر أثناء تمارين القوة الثقيلة والرفع المتقدم.",
-    externalLink: "#",
-    bg: "#FFFBEB", iconColor: "#D97706", border: "#FDE68A", Icon: Zap,
-  },
-  {
-    id: 5, title: "دمبل قابلة للضبط", category: "معدات تدريب",
-    description: "نظام دمبل ذكي يغني عن مجموعة أوزان كاملة، مثالي للتدريب المنزلي بمرونة تامة في تحديد الأوزان.",
-    externalLink: "#",
-    bg: "#FFF7ED", iconColor: "#EA580C", border: "#FED7AA", Icon: Dumbbell,
-  },
-  {
-    id: 6, title: "ميزان ذكي لقياس نسبة الدهون", category: "أجهزة قياس",
-    description: "يقيس نسبة الدهون والعضلات والماء بتقنية BIA ويتزامن مع تطبيق الجوال لمتابعة تقدمك بدقة.",
-    externalLink: "#",
-    bg: "#F5F3FF", iconColor: "#7C3AED", border: "#DDD6FE", Icon: Scale,
-  },
-  {
-    id: 7, title: "ساعة لياقة متكاملة", category: "أجهزة قياس",
-    description: "تتبع خطواتك ومعدل ضربات قلبك وجودة نومك وحرق السعرات بدقة لتحقيق أهداف لياقتك اليومية.",
-    externalLink: "#",
-    bg: "#EFF6FF", iconColor: "#2563EB", border: "#BFDBFE", Icon: Watch,
-  },
-  {
-    id: 8, title: "دليل التغذية الرياضية العلمية", category: "كتب وتعليم",
-    description: "مرجع شامل مبني على الأبحاث يشرح مبادئ التغذية الرياضية وكيفية تصميم نظام غذائي مثالي للأداء.",
-    externalLink: "#",
-    bg: "#EEF2FF", iconColor: "#4F46E5", border: "#C7D2FE", Icon: BookOpen,
-  },
+/* ─── Category colour map ────────────────────────────────────────────── */
 
-  /* ── New 8 ── */
-  {
-    id: 11, title: "بروتين كازين للنوم", category: "مكملات غذائية",
-    description: "بروتين بطيء الامتصاص مثالي قبل النوم لبناء العضلات أثناء الراحة",
-    externalLink: "#",
-    bg: "rgba(91,140,191,0.08)", iconColor: "#5B8CBF", border: "rgba(91,140,191,0.28)", Icon: Moon,
-    price: "28 دينار", rating: "4.7", reviews: "312",
-    features: ["بروتين بطيء الهضم 8 ساعات", "24 جرام بروتين لكل وجبة", "يقلل الهدم العضلي", "نكهة شوكولاتة فاخرة", "خالٍ من السكر"],
-    tip: "الكازين يوفر أحماض أمينية مستمرة لعضلاتك طوال الليل",
-  },
-  {
-    id: 12, title: "فيتامين D3 + K2", category: "مكملات غذائية",
-    description: "مزيج مثالي لتعزيز المناعة وصحة العظام والأداء الرياضي",
-    externalLink: "#",
-    bg: "rgba(224,122,95,0.08)", iconColor: "#E07A5F", border: "rgba(224,122,95,0.28)", Icon: Sun,
-    price: "14 دينار", rating: "4.9", reviews: "521",
-    features: ["5000 IU فيتامين D3", "100 مكغ فيتامين K2", "يعزز امتصاص الكالسيوم", "يحسن المزاج والطاقة", "نباتي 100%"],
-    tip: "80% من سكان الأردن يعانون من نقص فيتامين D - هذا المكمل ضروري",
-  },
-  {
-    id: 13, title: "رولر تدليك العضلات", category: "معدات تدريب",
-    description: "أسطوانة تدليك احترافية لتخفيف آلام العضلات وتحسين المرونة",
-    externalLink: "#",
-    bg: "rgba(61,122,94,0.08)", iconColor: "#3D7A5E", border: "rgba(61,122,94,0.28)", Icon: Zap,
-    price: "22 دينار", rating: "4.6", reviews: "189",
-    features: ["نقاط ضغط متعددة", "مادة EVA عالية الكثافة", "لجميع مناطق الجسم", "خفيف وسهل الحمل", "متين وطويل الأمد"],
-    tip: "التدليك بالرولر يقلل آلام العضلات بنسبة 40% ويسرع التعافي",
-  },
-  {
-    id: 14, title: "مقاومة المطاط (سيت كامل)", category: "معدات تدريب",
-    description: "مجموعة 5 أحزمة مقاومة بمستويات مختلفة للتمرين في أي مكان",
-    externalLink: "#",
-    bg: "rgba(155,127,191,0.08)", iconColor: "#9B7FBF", border: "rgba(155,127,191,0.28)", Icon: Dumbbell,
-    price: "18 دينار", rating: "4.8", reviews: "445",
-    features: ["5 مستويات مقاومة", "مادة لاتكس طبيعي", "تتحمل أكثر من 2000 تمرين", "مع حقيبة حمل", "دليل تمارين مجاني"],
-    tip: "أحزمة المقاومة تنشط العضلات بشكل أفضل من الأوزان الحرة في بعض التمارين",
-  },
-  {
-    id: 15, title: "مسحوق المغنيسيوم", category: "مكملات غذائية",
-    description: "مغنيسيوم عالي الامتصاص لتحسين النوم وتقليل تشنجات العضلات",
-    externalLink: "#",
-    bg: "rgba(91,140,191,0.08)", iconColor: "#5B8CBF", border: "rgba(91,140,191,0.28)", Icon: Moon,
-    price: "16 دينار", rating: "4.7", reviews: "267",
-    features: ["مغنيسيوم جليسينات عالي الامتصاص", "يحسن جودة النوم", "يقلل تشنجات العضلات", "يخفض مستوى التوتر", "نكهة ليمون منعشة"],
-    tip: "75% من الرياضيين يعانون من نقص المغنيسيوم - يؤثر مباشرة على الأداء",
-  },
-  {
-    id: 16, title: "جهاز قياس السكر المنزلي", category: "أجهزة قياس",
-    description: "جهاز دقيق وسهل الاستخدام لمتابعة مستوى السكر في الدم يومياً",
-    externalLink: "#",
-    bg: "rgba(224,122,95,0.08)", iconColor: "#E07A5F", border: "rgba(224,122,95,0.28)", Icon: Activity,
-    price: "35 دينار", rating: "4.8", reviews: "156",
-    features: ["نتيجة خلال 5 ثوانٍ", "ذاكرة 500 قراءة", "شاشة كبيرة واضحة", "دقة 99%", "مع 50 شريط اختبار"],
-    tip: "متابعة السكر تساعدك على اختيار التوقيت المثالي لوجباتك وتمارينك",
-  },
-  {
-    id: 17, title: "زيت السمك أوميغا 3 السائل", category: "مكملات غذائية",
-    description: "زيت سمك نقي سائل عالي التركيز بنكهة الليمون - أسرع امتصاصاً من الكبسولات",
-    externalLink: "#",
-    bg: "rgba(61,122,94,0.08)", iconColor: "#3D7A5E", border: "rgba(61,122,94,0.28)", Icon: Droplets,
-    price: "24 دينار", rating: "4.6", reviews: "198",
-    features: ["2500 مجم أوميغا 3 لكل جرعة", "نقاء 99% بدون ثقالات", "نكهة ليمون طبيعية", "امتصاص أسرع بـ 70%", "محفوظ بالنيتروجين"],
-    tip: "الشكل السائل يمتص أسرع بكثير من الكبسولات خاصة للرياضيين",
-  },
-  {
-    id: 18, title: "حصيرة يوغا احترافية", category: "معدات تدريب",
-    description: "حصيرة يوغا سميكة 6مم مع خطوط محاذاة للتمارين والتمدد اليومي",
-    externalLink: "#",
-    bg: "rgba(155,127,191,0.08)", iconColor: "#9B7FBF", border: "rgba(155,127,191,0.28)", Icon: Heart,
-    price: "26 دينار", rating: "4.7", reviews: "334",
-    features: ["سماكة 6 مم لراحة المفاصل", "مادة TPE صديقة للبيئة", "خطوط محاذاة مطبوعة", "مقاومة للانزلاق من الجهتين", "سهلة الطي والحمل"],
-    tip: "10 دقائق تمدد يومي تقلل خطر الإصابات بنسبة 50% وتحسن الأداء",
-  },
-];
+const CATEGORY_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+  "برامج تدريب":  { bg: "rgba(13,148,136,0.08)",  color: "#0D9488", border: "rgba(13,148,136,0.28)" },
+  "أنظمة غذائية": { bg: "rgba(217,119,6,0.08)",   color: "#D97706", border: "rgba(217,119,6,0.28)"  },
+  "كتب ومقالات":  { bg: "rgba(79,70,229,0.08)",   color: "#4F46E5", border: "rgba(79,70,229,0.28)"  },
+  "أخرى":         { bg: "rgba(155,89,182,0.08)",  color: "#9B59B6", border: "rgba(155,89,182,0.28)" },
+};
+const DEFAULT_STYLE = { bg: "rgba(61,122,94,0.08)", color: "#3D7A5E", border: "rgba(61,122,94,0.28)" };
 
-const ALL_CATEGORIES = ["الكل", "مكملات غذائية", "معدات تدريب", "أجهزة قياس", "كتب وتعليم"];
+function styleFor(cat: string) {
+  return CATEGORY_STYLE[cat] ?? DEFAULT_STYLE;
+}
 
-/* ─── Page ─────────────────────────────────────────────────────────────── */
+const WA_NUMBER = "96285229462";
+
+/* ─── Skeleton card ─────────────────────────────────────────────────── */
+
+function SkeletonCard() {
+  return (
+    <div style={{
+      backgroundColor: "rgba(255,255,255,0.88)",
+      border: "1.5px solid rgba(190,175,155,0.25)",
+      borderRadius: 20, overflow: "hidden",
+      boxShadow: "0 2px 20px rgba(0,0,0,0.06)",
+    }}>
+      <div className="animate-pulse" style={{ height: 180, backgroundColor: "#EDE9E3" }} />
+      <div style={{ padding: 20 }}>
+        <div className="animate-pulse" style={{ height: 13, width: "38%", backgroundColor: "#EDE9E3", borderRadius: 8, marginBottom: 12 }} />
+        <div className="animate-pulse" style={{ height: 20, width: "78%", backgroundColor: "#EDE9E3", borderRadius: 8, marginBottom: 10 }} />
+        <div className="animate-pulse" style={{ height: 13, backgroundColor: "#EDE9E3", borderRadius: 8, marginBottom: 6 }} />
+        <div className="animate-pulse" style={{ height: 13, width: "55%", backgroundColor: "#EDE9E3", borderRadius: 8, marginBottom: 22 }} />
+        <div className="animate-pulse" style={{ height: 44, backgroundColor: "#EDE9E3", borderRadius: 12 }} />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ──────────────────────────────────────────────────────────── */
 
 export default function StorePage() {
+  const [products,     setProducts]     = useState<Product[]>([]);
+  const [loading,      setLoading]      = useState(true);
   const [activeFilter, setActiveFilter] = useState("الكل");
 
-  const filtered =
-    activeFilter === "الكل"
-      ? recommendationsData
-      : recommendationsData.filter(item => item.category === activeFilter);
+  useEffect(() => {
+    createClient()
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) setProducts(data);
+        setLoading(false);
+      });
+  }, []);
 
-  const totalCount = recommendationsData.length;
+  const categories = ["الكل", ...Array.from(new Set(products.map(p => p.category)))];
+  const filtered   = activeFilter === "الكل"
+    ? products
+    : products.filter(p => p.category === activeFilter);
 
   return (
     <div
@@ -209,178 +117,189 @@ export default function StorePage() {
           className="text-lg max-w-xl mx-auto mb-4"
           style={{ color: "#6B7280" }}
         >
-          منتجات اخترها فريقنا بعناية لمساعدتك في الوصول إلى أهدافك الصحية والرياضية
+          منتجات وخدمات اخترها فريقنا بعناية لمساعدتك في الوصول إلى أهدافك الصحية والرياضية
         </motion.p>
 
-        {/* Dynamic count badge */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.4, delay: 0.3 }}
-          style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "6px 18px", borderRadius: 999,
-            backgroundColor: "rgba(45,106,79,0.08)",
-            border: "1.5px solid rgba(45,106,79,0.18)",
-            color: "#2D6A4F", fontSize: 13, fontWeight: 800,
-          }}
-        >
-          <span style={{ fontSize: 18, fontWeight: 900 }}>{filtered.length}</span>
-          منتج{activeFilter !== "الكل" ? ` في ${activeFilter}` : ` من أصل ${totalCount}`}
-        </motion.div>
+        {/* Count badge — hidden during load to avoid flash */}
+        {!loading && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 6,
+              padding: "6px 18px", borderRadius: 999,
+              backgroundColor: "rgba(45,106,79,0.08)",
+              border: "1.5px solid rgba(45,106,79,0.18)",
+              color: "#2D6A4F", fontSize: 13, fontWeight: 800,
+            }}
+          >
+            <span style={{ fontSize: 18, fontWeight: 900 }}>{filtered.length}</span>
+            {activeFilter !== "الكل" ? `منتج في ${activeFilter}` : `منتج من أصل ${products.length}`}
+          </motion.div>
+        )}
       </section>
 
       {/* ── Filter tabs ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.35 }}
-        className="flex flex-wrap justify-center gap-2.5 px-4 mb-10"
-      >
-        {ALL_CATEGORIES.map(cat => {
-          const active = cat === activeFilter;
-          return (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 active:scale-95"
-              style={{
-                backgroundColor: active ? "#2D6A4F" : "white",
-                color:           active ? "white"   : "#4A6B5C",
-                border:          active ? "1px solid #2D6A4F" : "1px solid rgba(190,175,155,0.4)",
-                boxShadow:       active ? "0 2px 12px rgba(45,106,79,0.22)" : "none",
-              }}
-            >
-              {cat}
-            </button>
-          );
-        })}
-      </motion.div>
-
-      {/* ── Cards grid ── */}
-      <div className="max-w-6xl mx-auto px-4">
-        <AnimatePresence mode="popLayout">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filtered.map((item, i) => (
-              <motion.div
-                key={item.id}
-                layout
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.93 }}
-                transition={{ duration: 0.38, delay: i * 0.055, ease: [0.22, 1, 0.36, 1] }}
-                className="flex flex-col overflow-hidden"
+      {!loading && products.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
+          className="flex flex-wrap justify-center gap-2.5 px-4 mb-10"
+        >
+          {categories.map(cat => {
+            const active = cat === activeFilter;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className="px-5 py-2 rounded-full text-sm font-bold transition-all duration-200 active:scale-95"
                 style={{
-                  backgroundColor: "rgba(255,255,255,0.88)",
-                  border:          `1.5px solid ${item.border}`,
-                  borderRadius:    "20px",
-                  boxShadow:       "0 2px 20px rgba(0,0,0,0.06)",
+                  backgroundColor: active ? "#2D6A4F" : "white",
+                  color:           active ? "white"   : "#4A6B5C",
+                  border:          active ? "1px solid #2D6A4F" : "1px solid rgba(190,175,155,0.4)",
+                  boxShadow:       active ? "0 2px 12px rgba(45,106,79,0.22)" : "none",
                 }}
               >
-                {/* Icon area */}
-                <div
-                  className="flex items-center justify-center flex-shrink-0 relative"
-                  style={{ height: 160, backgroundColor: item.bg }}
-                >
-                  <item.Icon size={56} style={{ color: item.iconColor, opacity: 0.88 }} strokeWidth={1.5} />
+                {cat}
+              </button>
+            );
+          })}
+        </motion.div>
+      )}
 
-                  {/* Price badge */}
-                  {item.price && (
-                    <div style={{
-                      position: "absolute", top: 12, left: 12,
-                      backgroundColor: "white",
-                      border: `1.5px solid ${item.border}`,
-                      borderRadius: 10, padding: "4px 10px",
-                      fontSize: 12, fontWeight: 900, color: item.iconColor,
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    }}>
-                      {item.price}
-                    </div>
-                  )}
+      {/* ── Grid ── */}
+      <div className="max-w-6xl mx-auto px-4">
 
-                  {/* Rating badge */}
-                  {item.rating && (
-                    <div style={{
-                      position: "absolute", top: 12, right: 12,
-                      backgroundColor: "rgba(255,255,255,0.92)",
-                      borderRadius: 10, padding: "4px 8px",
-                      fontSize: 11, fontWeight: 800, color: "#D97706",
-                      display: "flex", alignItems: "center", gap: 3,
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    }}>
-                      <Star size={11} fill="#D97706" color="#D97706" />
-                      {item.rating}
-                      <span style={{ color: "#aaa", fontWeight: 600 }}>({item.reviews})</span>
-                    </div>
-                  )}
-                </div>
+        {/* Loading skeletons */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
 
-                {/* Content */}
-                <div className="flex flex-col flex-1 p-5 gap-3">
-                  {/* Category pill */}
-                  <span
-                    className="self-start text-xs font-bold px-3 py-1 rounded-full"
-                    style={{ backgroundColor: item.bg, color: item.iconColor, border: `1px solid ${item.border}` }}
-                  >
-                    {item.category}
-                  </span>
+        {/* Empty state */}
+        {!loading && products.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center py-24"
+          >
+            <p style={{ fontSize: 52, marginBottom: 16 }}>🛍️</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: "#1A2E22", marginBottom: 8 }}>
+              لا توجد منتجات حالياً
+            </p>
+            <p style={{ fontSize: 15, color: "#9CA3AF" }}>
+              سيتم إضافة منتجات وخدمات قريباً — تابعونا!
+            </p>
+          </motion.div>
+        )}
 
-                  {/* Title */}
-                  <h3 className="text-lg font-black leading-snug" style={{ color: "#1A2E22" }}>
-                    {item.title}
-                  </h3>
+        {/* Product cards */}
+        {!loading && products.length > 0 && (
+          <AnimatePresence mode="popLayout">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filtered.map((item, i) => {
+                const s = styleFor(item.category);
+                const waHref = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(
+                  item.whatsapp_message ?? `أريد الاستفسار عن ${item.name}`
+                )}`;
 
-                  {/* Description */}
-                  <p className="text-sm leading-relaxed line-clamp-2" style={{ color: "#6B7280" }}>
-                    {item.description}
-                  </p>
-
-                  {/* Features (new products) */}
-                  {item.features && (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 2 }}>
-                      {item.features.slice(0, 3).map((f, fi) => (
-                        <div key={fi} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                          <div style={{
-                            width: 5, height: 5, borderRadius: "50%", flexShrink: 0,
-                            backgroundColor: item.iconColor,
-                          }} />
-                          <span style={{ fontSize: 11, color: "#555", fontWeight: 600 }}>{f}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Tip callout (new products) */}
-                  {item.tip && (
-                    <div style={{
-                      backgroundColor: "rgba(255,251,235,0.8)",
-                      border: "1px solid rgba(217,119,6,0.20)",
-                      borderRadius: 10, padding: "8px 11px",
-                      fontSize: 11, color: "#92400E", fontWeight: 600,
-                      lineHeight: 1.6,
-                    }}>
-                      💡 {item.tip}
-                    </div>
-                  )}
-
-                  {/* CTA */}
-                  <a
-                    href={item.externalLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-auto flex items-center justify-center gap-1.5 w-full py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-[1.02] active:scale-95"
+                return (
+                  <motion.div
+                    key={item.id}
+                    layout
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.93 }}
+                    transition={{ duration: 0.38, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex flex-col overflow-hidden"
                     style={{
-                      background: `linear-gradient(135deg, ${item.iconColor}, ${item.iconColor}CC)`,
-                      boxShadow:  `0 4px 14px ${item.iconColor}38`,
+                      backgroundColor: "rgba(255,255,255,0.88)",
+                      border:          `1.5px solid ${s.border}`,
+                      borderRadius:    20,
+                      boxShadow:       "0 2px 20px rgba(0,0,0,0.06)",
                     }}
                   >
-                    شراء من المصدر ←
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </AnimatePresence>
+                    {/* Image area */}
+                    <div
+                      className="relative flex-shrink-0 overflow-hidden"
+                      style={{ height: 180, backgroundColor: s.bg }}
+                    >
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center"
+                          style={{ fontSize: 52, opacity: 0.25 }}
+                        >
+                          🏷️
+                        </div>
+                      )}
+
+                      {/* Price badge */}
+                      <div style={{
+                        position: "absolute", top: 12, right: 12,
+                        backgroundColor: "white",
+                        border: `1.5px solid ${s.border}`,
+                        borderRadius: 10, padding: "4px 12px",
+                        fontSize: 13, fontWeight: 900, color: s.color,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      }}>
+                        {item.price} دينار
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex flex-col flex-1 p-5 gap-3">
+                      {/* Category pill */}
+                      <span
+                        className="self-start text-xs font-bold px-3 py-1 rounded-full"
+                        style={{ backgroundColor: s.bg, color: s.color, border: `1px solid ${s.border}` }}
+                      >
+                        {item.category}
+                      </span>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-black leading-snug" style={{ color: "#1A2E22" }}>
+                        {item.name}
+                      </h3>
+
+                      {/* Description */}
+                      <p
+                        className="text-sm leading-relaxed line-clamp-3"
+                        style={{ color: "#6B7280", flex: 1 }}
+                      >
+                        {item.description}
+                      </p>
+
+                      {/* CTA */}
+                      <a
+                        href={waHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-auto flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-[1.02] active:scale-95"
+                        style={{
+                          background: `linear-gradient(135deg, ${s.color}, ${s.color}CC)`,
+                          boxShadow:  `0 4px 14px ${s.color}38`,
+                        }}
+                      >
+                        <MessageCircle size={15} />
+                        احجز عبر واتساب
+                      </a>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );

@@ -4,8 +4,10 @@ import type { NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/dashboard'
+  const code    = searchParams.get('code')
+  const rawNext = searchParams.get('next') ?? '/dashboard'
+  // Block protocol-relative URLs (//evil.com) and anything not starting with /
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard'
 
   const forwardedHost = request.headers.get('x-forwarded-host')
   const isLocal = process.env.NODE_ENV === 'development'

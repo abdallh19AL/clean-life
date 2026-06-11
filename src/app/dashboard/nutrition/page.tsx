@@ -179,6 +179,28 @@ export default function NutritionPage() {
           />
         </div>
         <p style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>{caloriesPct}% من الهدف اليومي</p>
+
+        {/* AI calculator nudge */}
+        <div style={{
+          marginTop: 14, display: "flex", alignItems: "center", gap: 10,
+          padding: "9px 14px", borderRadius: 10,
+          background: "rgba(91,140,191,0.07)", border: "1px solid rgba(91,140,191,0.16)",
+        }}>
+          <span style={{ fontSize: 14 }}>💡</span>
+          <p style={{ fontSize: 12, color: "#555", fontWeight: 600, flex: 1, lineHeight: 1.4 }}>
+            للدقة، استخدم الحاسبة الذكية لتحليل وجباتك وحساب سعراتها تلقائياً
+          </p>
+          <a
+            href="/dashboard/calculator"
+            style={{
+              fontSize: 11, fontWeight: 800, color: "#5B8CBF",
+              textDecoration: "none", flexShrink: 0, whiteSpace: "nowrap",
+              borderBottom: "1.5px solid rgba(91,140,191,0.4)",
+            }}
+          >
+            جرّب الآن ←
+          </a>
+        </div>
       </motion.div>
 
       {/* ── Meal cards ── */}

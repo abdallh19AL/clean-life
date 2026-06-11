@@ -399,6 +399,59 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
+      {/* ── Logging reminder banner ── */}
+      {!dataLoading && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.38, ease: "easeOut" }}
+          style={{ marginBottom: 20 }}
+        >
+          {!(todayWeight !== null || todayCalories !== null || todayCups !== null) ? (
+            <div style={{
+              background: "linear-gradient(135deg, rgba(251,191,36,0.13), rgba(245,158,11,0.07))",
+              border: "1.5px solid rgba(245,158,11,0.35)",
+              borderRadius: 18, padding: "15px 22px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 22 }}>📋</span>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 800, color: "#92400E", marginBottom: 2 }}>
+                    لم تسجّل بياناتك اليوم بعد!
+                  </p>
+                  <p style={{ fontSize: 12, color: "#B45309", fontWeight: 600 }}>
+                    سجّل تقدمك للحفاظ على رحلتك الصحية — استخدم البطاقة أدناه
+                  </p>
+                </div>
+              </div>
+              <motion.span
+                animate={{ scale: [1, 1.06, 1] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                style={{
+                  background: "rgba(245,158,11,0.14)", border: "1.5px solid rgba(245,158,11,0.32)",
+                  color: "#B45309", fontSize: 12, fontWeight: 800,
+                  padding: "6px 16px", borderRadius: 999, flexShrink: 0,
+                }}
+              >
+                سجّل الآن ↓
+              </motion.span>
+            </div>
+          ) : (
+            <div style={{
+              background: "rgba(39,174,96,0.07)", border: "1.5px solid rgba(39,174,96,0.20)",
+              borderRadius: 18, padding: "11px 22px",
+              display: "flex", alignItems: "center", gap: 10,
+            }}>
+              <CheckCircle size={16} color="#27AE60" />
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#27AE60" }}>
+                سجّلت بياناتك اليوم — أحسنت! 🎉
+              </p>
+            </div>
+          )}
+        </motion.div>
+      )}
+
       {/* ── B: Metric cards — live from Supabase ── */}
       <motion.div
         variants={stagger} initial="hidden" animate="visible"
@@ -521,6 +574,32 @@ export default function DashboardPage() {
               {logSaving ? "..." : "حفظ"}
             </motion.button>
           </form>
+
+          {/* AI calculator nudge */}
+          <div style={{
+            marginTop: 14, display: "flex", alignItems: "center", gap: 10,
+            padding: "10px 16px", borderRadius: 12,
+            background: "rgba(91,140,191,0.07)", border: "1px solid rgba(91,140,191,0.18)",
+          }}>
+            <span style={{ fontSize: 15 }}>💡</span>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#555", flex: 1, lineHeight: 1.4 }}>
+              للدقة في حساب السعرات، جرّب الحاسبة الذكية لتحليل وجباتك
+            </p>
+            <motion.button
+              whileHover={{ backgroundColor: "#5B8CBF", color: "#fff" }}
+              whileTap={{ scale: 0.96 }}
+              transition={{ duration: 0.15 }}
+              onClick={() => router.push("/dashboard/calculator")}
+              style={{
+                background: "transparent", border: "1.5px solid #5B8CBF",
+                color: "#5B8CBF", borderRadius: 999, padding: "5px 14px",
+                fontSize: 11, fontWeight: 800, fontFamily: "inherit",
+                cursor: "pointer", flexShrink: 0,
+              }}
+            >
+              جرّب الآن
+            </motion.button>
+          </div>
 
           {/* Today's summary pills */}
           {(todayWeight !== null || todayCalories !== null || todayCups !== null) && (

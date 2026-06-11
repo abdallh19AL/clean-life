@@ -75,10 +75,11 @@ function MacroBar({ label, grams, max, color }: { label: string; grams: number; 
 function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 export default function NutritionPage() {
-  const [cups,   setCups]   = useState<boolean[]>(Array(8).fill(false));
-  const [userId, setUserId] = useState<string | null>(null);
+  const [cups,          setCups]         = useState<boolean[]>(Array(8).fill(false));
+  const [userId,        setUserId]       = useState<string | null>(null);
+  const [todayCalories, setTodayCalories] = useState<number | null>(null);
 
-  // Load today's water count from daily_logs on mount
+  // Load today's water + calories from daily_logs on mount
   useEffect(() => {
     (async () => {
       const supabase = createClient();
@@ -88,7 +89,7 @@ export default function NutritionPage() {
 
       const { data } = await supabase
         .from("daily_logs")
-        .select("water_cups")
+        .select("calories, water_cups")
         .eq("user_id", user.id)
         .eq("date", todayISO())
         .maybeSingle();
@@ -97,6 +98,7 @@ export default function NutritionPage() {
         const count = Math.min(data.water_cups, 8);
         setCups(Array(8).fill(false).map((_, i) => i < count));
       }
+      if (data?.calories != null) setTodayCalories(data.calories);
     })();
   }, []);
 
@@ -115,8 +117,9 @@ export default function NutritionPage() {
     }
   }
 
-  const filledCups = cups.filter(Boolean).length;
-  const caloriesPct = Math.round((totalConsumed / TOTAL_GOAL) * 100);
+  const filledCups  = cups.filter(Boolean).length;
+  const displayCal  = todayCalories ?? 0;
+  const caloriesPct = Math.round((displayCal / TOTAL_GOAL) * 100);
 
   return (
     <motion.div
@@ -155,12 +158,12 @@ export default function NutritionPage() {
           <div>
             <p style={{ fontSize: 13, color: "#999", fontWeight: 600, marginBottom: 4 }}>السعرات الحرارية اليوم</p>
             <p style={{ fontSize: 26, fontWeight: 900, color: "#1a1a1a" }}>
-              {totalConsumed}
+              {displayCal}
               <span style={{ fontSize: 16, color: "#aaa", fontWeight: 600 }}> / {TOTAL_GOAL} سعرة</span>
             </p>
           </div>
           <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: 32, fontWeight: 900, color: "#3D7A5E" }}>{TOTAL_GOAL - totalConsumed}</p>
+            <p style={{ fontSize: 32, fontWeight: 900, color: "#3D7A5E" }}>{TOTAL_GOAL - displayCal}</p>
             <p style={{ fontSize: 12, color: "#bbb" }}>سعرة متبقية</p>
           </div>
         </div>

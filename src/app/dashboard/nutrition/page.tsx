@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sun, Sunset, Moon, Droplets } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const meals = [
@@ -71,15 +72,47 @@ function MacroBar({ label, grams, max, color }: { label: string; grams: number; 
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+function todayISO() { return new Date().toISOString().split("T")[0]; }
+
 export default function NutritionPage() {
-  const [cups, setCups] = useState<boolean[]>(Array(8).fill(false));
+  const [cups,   setCups]   = useState<boolean[]>(Array(8).fill(false));
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Load today's water count from daily_logs on mount
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserId(user.id);
+
+      const { data } = await supabase
+        .from("daily_logs")
+        .select("water_cups")
+        .eq("user_id", user.id)
+        .eq("date", todayISO())
+        .maybeSingle();
+
+      if (data?.water_cups != null) {
+        const count = Math.min(data.water_cups, 8);
+        setCups(Array(8).fill(false).map((_, i) => i < count));
+      }
+    })();
+  }, []);
 
   function toggleCup(i: number) {
-    setCups(prev => {
-      const next = [...prev];
-      next[i] = !next[i];
-      return next;
-    });
+    const newCups = cups.map((v, idx) => idx === i ? !v : v);
+    setCups(newCups);
+    const count = newCups.filter(Boolean).length;
+    if (userId) {
+      const supabase = createClient();
+      supabase
+        .from("daily_logs")
+        .upsert(
+          { user_id: userId, date: todayISO(), water_cups: count },
+          { onConflict: "user_id,date" }
+        );
+    }
   }
 
   const filledCups = cups.filter(Boolean).length;

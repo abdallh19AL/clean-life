@@ -305,7 +305,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         style={{
           flex: 1,
           position: "relative",
-          zIndex: 1,
           backgroundColor: "rgba(245,242,237,0.72)",
         }}
       >

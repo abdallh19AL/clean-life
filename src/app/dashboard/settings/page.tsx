@@ -151,6 +151,7 @@ export default function SettingsPage() {
   const [isSaving,      setIsSaving]      = useState(false);
   const [savedOk,       setSavedOk]       = useState(false);
   const [avatarPreview, setAvatarPreview] = useState("");
+  const [heightCm,      setHeightCm]      = useState("");
   const [activeTab,     setActiveTab]     = useState<Tab>("profile");
 
   // Notification toggles
@@ -184,6 +185,13 @@ export default function SettingsPage() {
           fullName: user.user_metadata?.full_name ?? user.email?.split("@")[0] ?? "",
           email:    user.email ?? "",
         }));
+
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("height_cm")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (prof?.height_cm != null) setHeightCm(String(prof.height_cm));
       }
     })();
   }, []);
@@ -197,10 +205,14 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   }
 
-  /* ── Save profile (local state only; extend with supabase.auth.updateUser if needed) ── */
   async function handleSave() {
     setIsSaving(true);
-    await new Promise(r => setTimeout(r, 900));
+    if (user && heightCm !== "") {
+      const supabase = createClient();
+      await supabase
+        .from("profiles")
+        .upsert({ id: user.id, height_cm: parseFloat(heightCm) }, { onConflict: "id" });
+    }
     setIsSaving(false);
     setIsEditing(false);
     setSavedOk(true);
@@ -353,7 +365,19 @@ export default function SettingsPage() {
 
         {/* ── Health goals ── */}
         <SectionTitle>الأهداف الصحية</SectionTitle>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
+          <Field label="الطول بالسنتيمتر (سم)" sub="يستخدم لحساب مؤشر كتلة الجسم BMI في صفحة التقدم">
+            <input
+              type="number" min="100" max="250" step="1"
+              value={heightCm}
+              disabled={!isEditing}
+              onChange={e => setHeightCm(e.target.value)}
+              placeholder="مثال: 175"
+              style={isEditing ? baseInput : disabledInput}
+              onFocus={e => { if (isEditing) e.target.style.borderColor = "#3D7A5E"; }}
+              onBlur={e  => { e.target.style.borderColor = "rgba(190,175,155,0.35)"; }}
+            />
+          </Field>
           <Field label="الوزن المستهدف (كغ)">
             <input
               type="number" min="30" max="300" step="0.5"
@@ -899,10 +923,10 @@ export default function SettingsPage() {
           <h2 style={{ fontSize: 18, fontWeight: 900, color: "#1a1a1a", marginBottom: 24 }}>
             {tabs.find(t => t.id === activeTab)?.label}
           </h2>
-          {activeTab === "profile"       && <ProfileTab />}
-          {activeTab === "account"       && <AccountTab />}
-          {activeTab === "notifications" && <NotificationsTab />}
-          {activeTab === "security"      && <SecurityTab />}
+          {activeTab === "profile"       && ProfileTab()}
+          {activeTab === "account"       && AccountTab()}
+          {activeTab === "notifications" && NotificationsTab()}
+          {activeTab === "security"      && SecurityTab()}
         </motion.div>
       </div>
     </motion.div>

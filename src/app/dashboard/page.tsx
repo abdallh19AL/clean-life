@@ -112,24 +112,34 @@ function AnimatedBar({ pct, color, bg }: { pct: number; color: string; bg: strin
   );
 }
 
-function PerformanceCard({ cups, calories }: { cups: number | null; calories: number | null }) {
+function PerformanceCard({ cups, calories, calorieGoal }: {
+  cups: number | null; calories: number | null; calorieGoal: number | null;
+}) {
+  const caloriePct: number | null =
+    calorieGoal != null && calorieGoal > 0 && calories !== null
+      ? Math.min(Math.round((calories / calorieGoal) * 100), 100)
+      : null;
+
   const METRICS = [
     {
       label: "شرب الماء",
-      pct: cups     !== null ? Math.min(Math.round((cups     / 8)    * 100), 100) : 0,
+      pct:   cups !== null ? Math.min(Math.round((cups / 8) * 100), 100) : 0,
       color: "#06B6D4", bg: "rgba(6,182,212,0.12)",
+      scored: true, calcHint: false,
     },
     {
       label: "السعرات الغذائية",
-      pct: calories !== null ? Math.min(Math.round((calories / 2200) * 100), 100) : 0,
+      pct:   caloriePct ?? 0,
       color: "#E07A5F", bg: "rgba(224,122,95,0.12)",
+      scored: caloriePct !== null, calcHint: caloriePct === null,
     },
-    { label: "الالتزام بالتمارين", pct: 0, color: "#3D7A5E", bg: "rgba(61,122,94,0.12)"  },
-    { label: "جودة النوم",         pct: 0, color: "#7E57C2", bg: "rgba(126,87,194,0.12)" },
-    { label: "مستوى النشاط",       pct: 0, color: "#5B8CBF", bg: "rgba(91,140,191,0.12)" },
+    { label: "الالتزام بالتمارين", pct: 0, color: "#3D7A5E", bg: "rgba(61,122,94,0.12)",  scored: true, calcHint: false },
+    { label: "جودة النوم",         pct: 0, color: "#7E57C2", bg: "rgba(126,87,194,0.12)", scored: true, calcHint: false },
+    { label: "مستوى النشاط",       pct: 0, color: "#5B8CBF", bg: "rgba(91,140,191,0.12)", scored: true, calcHint: false },
   ];
 
-  const avg = Math.round(METRICS.reduce((s, m) => s + m.pct, 0) / METRICS.length);
+  const scoredMetrics = METRICS.filter(m => m.scored);
+  const avg = Math.round(scoredMetrics.reduce((s, m) => s + m.pct, 0) / scoredMetrics.length);
   const rating =
     avg >= 80 ? { label: "ممتاز",      icon: "🌟", color: "#3D7A5E", bg: "rgba(61,122,94,0.10)"   } :
     avg >= 40 ? { label: "جيد",        icon: "💪", color: "#5B8CBF", bg: "rgba(91,140,191,0.10)"  } :
@@ -164,15 +174,30 @@ function PerformanceCard({ cups, calories }: { cups: number | null; calories: nu
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 22 }}>
-        {METRICS.map(({ label, pct, color, bg }) => (
+        {METRICS.map(({ label, pct, color, bg, calcHint }) => (
           <div key={label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <span className="lg:w-[168px] lg:flex-shrink-0" style={{ fontSize: 13, fontWeight: 700, color: "#555", textAlign: "right" }}>
               {label}
             </span>
-            <AnimatedBar pct={pct} color={color} bg={bg} />
-            <span style={{ fontSize: 13, fontWeight: 900, color, width: 36, textAlign: "left", flexShrink: 0 }}>
-              {pct}٪
-            </span>
+            {calcHint ? (
+              <a
+                href="/calculator"
+                style={{
+                  flex: 1, fontSize: 12, fontWeight: 700, color: "#0D9488",
+                  textDecoration: "none", borderBottom: "1.5px solid rgba(13,148,136,0.30)",
+                  lineHeight: 2,
+                }}
+              >
+                احسب هدفك ←
+              </a>
+            ) : (
+              <>
+                <AnimatedBar pct={pct} color={color} bg={bg} />
+                <span style={{ fontSize: 13, fontWeight: 900, color, width: 36, textAlign: "left", flexShrink: 0 }}>
+                  {pct}٪
+                </span>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -218,6 +243,7 @@ export default function DashboardPage() {
   const [todayCalories, setTodayCalories] = useState<number | null>(null);
   const [todayCups,     setTodayCups]     = useState<number | null>(null);
   const [dataLoading,   setDataLoading]   = useState(true);
+  const [calorieGoal,   setCalorieGoal]   = useState<number | null>(null);
 
   // Quick log form
   const [logWeight,   setLogWeight]   = useState("");
@@ -246,10 +272,16 @@ export default function DashboardPage() {
             .eq("user_id", user.id)
             .eq("date", today)
             .maybeSingle(),
-        ]).then(([wRes, dRes]) => {
+          supabase
+            .from("profiles")
+            .select("calorie_goal")
+            .eq("id", user.id)
+            .maybeSingle(),
+        ]).then(([wRes, dRes, pRes]) => {
           if (wRes.data)                     setTodayWeight(wRes.data.weight_kg);
           if (dRes.data?.calories   != null) setTodayCalories(dRes.data.calories);
           if (dRes.data?.water_cups != null) setTodayCups(dRes.data.water_cups);
+          setCalorieGoal(pRes.data?.calorie_goal ?? null);
           setDataLoading(false);
         });
       } else {
@@ -739,7 +771,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* ── F: Daily performance tracker — live ── */}
-      <PerformanceCard cups={todayCups} calories={todayCalories} />
+      <PerformanceCard cups={todayCups} calories={todayCalories} calorieGoal={calorieGoal} />
     </div>
   );
 }

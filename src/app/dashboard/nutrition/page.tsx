@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Sun, Sunset, Moon, Droplets } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { useCalorieGoal } from "@/hooks/useCalorieGoal";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 const meals = [
@@ -48,7 +50,6 @@ const meals = [
   },
 ];
 
-const TOTAL_GOAL = 2200;
 const totalConsumed = meals.reduce((s, m) => s + m.calories, 0);
 
 // ─── Macro bar ────────────────────────────────────────────────────────────────
@@ -78,6 +79,7 @@ export default function NutritionPage() {
   const [cups,          setCups]         = useState<boolean[]>(Array(8).fill(false));
   const [userId,        setUserId]       = useState<string | null>(null);
   const [todayCalories, setTodayCalories] = useState<number | null>(null);
+  const { goal, loading: goalLoading }    = useCalorieGoal();
 
   // Load today's water + calories from daily_logs on mount
   useEffect(() => {
@@ -119,7 +121,9 @@ export default function NutritionPage() {
 
   const filledCups  = cups.filter(Boolean).length;
   const displayCal  = todayCalories ?? 0;
-  const caloriesPct = Math.round((displayCal / TOTAL_GOAL) * 100);
+  const caloriesPct = goal != null && goal > 0
+    ? Math.min(Math.round((displayCal / goal) * 100), 100)
+    : 0;
 
   return (
     <motion.div
@@ -159,26 +163,57 @@ export default function NutritionPage() {
             <p style={{ fontSize: 13, color: "#999", fontWeight: 600, marginBottom: 4 }}>السعرات الحرارية اليوم</p>
             <p style={{ fontSize: 26, fontWeight: 900, color: "#1a1a1a" }}>
               {displayCal}
-              <span style={{ fontSize: 16, color: "#aaa", fontWeight: 600 }}> / {TOTAL_GOAL} سعرة</span>
+              {!goalLoading && goal !== null && (
+                <span style={{ fontSize: 16, color: "#aaa", fontWeight: 600 }}> / {goal} سعرة</span>
+              )}
+              {(goalLoading || goal === null) && (
+                <span style={{ fontSize: 16, color: "#ccc", fontWeight: 500 }}> سعرة</span>
+              )}
             </p>
           </div>
-          <div style={{ textAlign: "center" }}>
-            <p style={{ fontSize: 32, fontWeight: 900, color: "#3D7A5E" }}>{TOTAL_GOAL - displayCal}</p>
-            <p style={{ fontSize: 12, color: "#bbb" }}>سعرة متبقية</p>
-          </div>
+
+          {/* Right side: remaining OR calculator prompt */}
+          {!goalLoading && goal !== null && (
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontSize: 32, fontWeight: 900, color: "#3D7A5E" }}>
+                {Math.max(0, goal - displayCal)}
+              </p>
+              <p style={{ fontSize: 12, color: "#bbb" }}>سعرة متبقية</p>
+            </div>
+          )}
+          {!goalLoading && goal === null && (
+            <Link
+              href="/calculator"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, fontWeight: 700, color: "#0D9488", textDecoration: "none",
+                padding: "10px 14px", borderRadius: 10, lineHeight: 1.5, textAlign: "center",
+                backgroundColor: "rgba(13,148,136,0.08)", border: "1px solid rgba(13,148,136,0.20)",
+                minHeight: 44,
+              }}
+            >
+              احسب هدفك
+            </Link>
+          )}
         </div>
-        <div style={{ height: 12, borderRadius: 999, background: "rgba(190,175,155,0.18)", overflow: "hidden" }}>
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${caloriesPct}%` }}
-            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-            style={{
-              height: "100%", borderRadius: 999,
-              background: "linear-gradient(90deg, #2D6A4F, #52B788)",
-            }}
-          />
-        </div>
-        <p style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>{caloriesPct}% من الهدف اليومي</p>
+
+        {/* Progress bar — only meaningful when a real goal is set */}
+        {!goalLoading && goal !== null && (
+          <>
+            <div style={{ height: 12, borderRadius: 999, background: "rgba(190,175,155,0.18)", overflow: "hidden" }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${caloriesPct}%` }}
+                transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+                style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #2D6A4F, #52B788)" }}
+              />
+            </div>
+            <p style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>{caloriesPct}% من الهدف اليومي</p>
+          </>
+        )}
+        {goalLoading && (
+          <div style={{ height: 12, borderRadius: 999, background: "rgba(190,175,155,0.12)" }} />
+        )}
 
         {/* AI calculator nudge */}
         <div style={{

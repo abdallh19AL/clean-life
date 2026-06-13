@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/dashboard/workout",      label: "جدول التدريب",   icon: Dumbbell        },
   { href: "/dashboard/appointments", label: "المواعيد",        icon: CalendarDays    },
   { href: "/dashboard/calculator",   label: "حاسبة التغذية",  icon: Calculator      },
+  { href: "/dashboard/settings",     label: "الإعدادات",       icon: Settings        },
 ];
 
 /* ─── Top nav links ──────────────────────────────────────────────────────── */
@@ -275,6 +276,13 @@ function TopNavbar() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  }
 
   return (
     <div
@@ -386,8 +394,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             })}
           </nav>
 
-          {/* User card */}
-          <div className="px-3 py-4 border-t border-gray-100/80">
+          {/* User card + mobile logout */}
+          <div className="px-3 py-4 border-t border-gray-100/80 flex flex-col gap-2">
             <div className="flex items-center gap-3 bg-gradient-to-l from-teal-50/90 to-cyan-50/90 hover:from-teal-100/90 hover:to-cyan-100/90 rounded-2xl px-4 py-3.5 cursor-pointer transition-all duration-200 ring-1 ring-teal-100/60">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-sm shadow-teal-400/40">
                 <User className="w-4 h-4 text-white" />
@@ -397,6 +405,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <p className="text-teal-500 text-xs font-semibold truncate">عضو مميز</p>
               </div>
             </div>
+            <button
+              onClick={async () => { setOpen(false); await handleLogout(); }}
+              className="lg:hidden flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-bold text-red-400 hover:bg-red-50 transition-colors"
+            >
+              <LogOut className="w-[18px] h-[18px] flex-shrink-0" />
+              تسجيل الخروج
+            </button>
           </div>
         </aside>
 

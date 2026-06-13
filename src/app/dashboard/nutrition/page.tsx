@@ -121,9 +121,9 @@ export default function NutritionPage() {
 
   const filledCups  = cups.filter(Boolean).length;
   const displayCal  = todayCalories ?? 0;
-  const caloriesPct = goal != null && goal > 0
-    ? Math.min(Math.round((displayCal / goal) * 100), 100)
-    : 0;
+  const isOverGoal  = goal != null && goal > 0 && displayCal > goal;
+  const displayPct  = goal != null && goal > 0 ? Math.round((displayCal / goal) * 100) : 0;
+  const barPct      = Math.min(displayPct, 100);
 
   return (
     <motion.div
@@ -158,27 +158,25 @@ export default function NutritionPage() {
           marginBottom: 24,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        {/* ── Two clearly-labelled columns: logged (right in RTL) | goal (left in RTL) ── */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+
+          {/* Logged — first in HTML = visual RIGHT in RTL */}
           <div>
-            <p style={{ fontSize: 13, color: "#999", fontWeight: 600, marginBottom: 4 }}>السعرات الحرارية اليوم</p>
-            <p style={{ fontSize: 26, fontWeight: 900, color: "#1a1a1a" }}>
-              {displayCal}
-              {!goalLoading && goal !== null && (
-                <span style={{ fontSize: 16, color: "#aaa", fontWeight: 600 }}> / {goal} سعرة</span>
-              )}
-              {(goalLoading || goal === null) && (
-                <span style={{ fontSize: 16, color: "#ccc", fontWeight: 500 }}> سعرة</span>
-              )}
-            </p>
+            <p style={{ fontSize: 12, color: "#999", fontWeight: 600, marginBottom: 4 }}>السعرات المُسجّلة</p>
+            <p style={{ fontSize: 28, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.1 }}>{displayCal}</p>
+            <p style={{ fontSize: 12, color: "#aaa", marginTop: 2 }}>سعرة</p>
           </div>
 
-          {/* Right side: remaining OR calculator prompt */}
+          {/* Goal — second in HTML = visual LEFT in RTL */}
           {!goalLoading && goal !== null && (
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 32, fontWeight: 900, color: "#3D7A5E" }}>
-                {Math.max(0, goal - displayCal)}
-              </p>
-              <p style={{ fontSize: 12, color: "#bbb" }}>سعرة متبقية</p>
+              <p style={{ fontSize: 12, color: "#999", fontWeight: 600, marginBottom: 4 }}>الهدف اليومي</p>
+              <p style={{
+                fontSize: 22, fontWeight: 900, lineHeight: 1.1,
+                color: isOverGoal ? "#D97706" : "#3D7A5E",
+              }}>{goal}</p>
+              <p style={{ fontSize: 12, color: "#aaa", marginTop: 2 }}>سعرة</p>
             </div>
           )}
           {!goalLoading && goal === null && (
@@ -197,18 +195,49 @@ export default function NutritionPage() {
           )}
         </div>
 
-        {/* Progress bar — only meaningful when a real goal is set */}
+        {/* ── Progress bar + status — only when goal is set ── */}
         {!goalLoading && goal !== null && (
           <>
+            {/* Status: remaining or exceeded */}
+            {isOverGoal ? (
+              <div style={{
+                backgroundColor: "rgba(217,119,6,0.09)", border: "1px solid rgba(217,119,6,0.22)",
+                borderRadius: 10, padding: "8px 14px", marginBottom: 10,
+                fontSize: 13, fontWeight: 700, color: "#92400E",
+              }}>
+                ⚠ تجاوزت هدفك بـ {displayCal - goal} سعرة
+              </div>
+            ) : (
+              <p style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>
+                متبقي {goal - displayCal} سعرة للوصول للهدف
+              </p>
+            )}
+
+            {/* Bar */}
             <div style={{ height: 12, borderRadius: 999, background: "rgba(190,175,155,0.18)", overflow: "hidden" }}>
               <motion.div
                 initial={{ width: 0 }}
-                animate={{ width: `${caloriesPct}%` }}
+                animate={{ width: `${barPct}%` }}
                 transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
-                style={{ height: "100%", borderRadius: 999, background: "linear-gradient(90deg, #2D6A4F, #52B788)" }}
+                style={{
+                  height: "100%", borderRadius: 999,
+                  background: isOverGoal
+                    ? "linear-gradient(90deg, #D97706, #F59E0B)"
+                    : "linear-gradient(90deg, #2D6A4F, #52B788)",
+                }}
               />
             </div>
-            <p style={{ fontSize: 12, color: "#aaa", marginTop: 8 }}>{caloriesPct}% من الهدف اليومي</p>
+
+            {/* Honest percentage */}
+            <p style={{
+              fontSize: 12, marginTop: 8,
+              color: isOverGoal ? "#92400E" : "#aaa",
+              fontWeight: isOverGoal ? 700 : 400,
+            }}>
+              {isOverGoal
+                ? `${displayPct}% من الهدف — تجاوزت الهدف`
+                : `${displayPct}% من الهدف اليومي`}
+            </p>
           </>
         )}
         {goalLoading && (

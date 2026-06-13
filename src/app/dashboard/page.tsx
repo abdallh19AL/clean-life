@@ -117,7 +117,7 @@ function PerformanceCard({ cups, calories, calorieGoal }: {
 }) {
   const caloriePct: number | null =
     calorieGoal != null && calorieGoal > 0 && calories !== null
-      ? Math.min(Math.round((calories / calorieGoal) * 100), 100)
+      ? Math.max(0, Math.round((1 - Math.abs(calories - calorieGoal) / calorieGoal) * 100))
       : null;
 
   const METRICS = [

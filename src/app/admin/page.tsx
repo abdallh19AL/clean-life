@@ -59,7 +59,7 @@ function Input({
     width: "100%", boxSizing: "border-box",
     padding: "10px 12px", borderRadius: 10,
     border: "1.5px solid rgba(190,175,155,0.35)",
-    backgroundColor: "#FAFAF8", fontSize: 13,
+    backgroundColor: "#FAFAF8", fontSize: 16,
     fontFamily: "inherit", color: "#1a2e22",
     outline: "none", direction: "rtl",
     transition: "border-color 0.2s",
@@ -262,7 +262,7 @@ export default function AdminPage() {
           </div>
           <div>
             <p style={{ fontSize: 14, fontWeight: 900, color: "#1a2e22", lineHeight: 1.2, margin: 0 }}>لوحة الإدارة</p>
-            <p style={{ fontSize: 10, fontWeight: 600, color: "#6B9E80", margin: 0 }}>Clean Life</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#6B9E80", margin: 0 }}>Clean Life</p>
           </div>
         </div>
         <button

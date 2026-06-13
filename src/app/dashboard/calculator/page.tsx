@@ -66,7 +66,7 @@ function MacroCard({
     }}>
       <Icon size={20} color={color} style={{ marginBottom: 6 }} />
       <p style={{ fontSize: 20, fontWeight: 900, color, lineHeight: 1 }}>{value.toFixed(1)}</p>
-      <p style={{ fontSize: 11, color: "#aaa", fontWeight: 600, marginTop: 3 }}>{unit}</p>
+      <p style={{ fontSize: 12, color: "#aaa", fontWeight: 600, marginTop: 3 }}>{unit}</p>
       <p style={{ fontSize: 12, color: "#666", fontWeight: 700, marginTop: 2 }}>{label}</p>
     </div>
   );
@@ -184,7 +184,7 @@ export default function CalculatorPage() {
             padding: "14px 16px", borderRadius: 14,
             border: "1.5px solid rgba(190,175,155,0.30)",
             backgroundColor: "#FAFAF7",
-            fontSize: 15, fontFamily: "inherit",
+            fontSize: 16, fontFamily: "inherit",
             lineHeight: 1.7, outline: "none",
             color: "#333", direction: "rtl",
             transition: "border-color 0.2s",
@@ -193,7 +193,7 @@ export default function CalculatorPage() {
           onBlur={e  => { e.target.style.borderColor = "rgba(190,175,155,0.30)"; }}
         />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8, marginBottom: 16 }}>
-          <span style={{ fontSize: 11, color: "#bbb" }}>{mealText.length} حرف</span>
+          <span style={{ fontSize: 12, color: "#bbb" }}>{mealText.length} حرف</span>
         </div>
 
         <motion.button

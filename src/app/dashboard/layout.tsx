@@ -148,6 +148,7 @@ function TopNavbar() {
   return (
     <div
       dir="rtl"
+      className="hidden lg:flex"
       style={{
         position: "sticky", top: 0, zIndex: 100,
         height: 60, flexShrink: 0,
@@ -157,7 +158,7 @@ function TopNavbar() {
         borderBottom: "1px solid rgba(190,175,155,0.20)",
         boxShadow: "0 1px 16px rgba(60,50,30,0.06)",
         padding: "0 28px",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
+        alignItems: "center", justifyContent: "space-between",
         fontFamily: "'Cairo','Segoe UI',sans-serif",
       }}
     >
@@ -403,7 +404,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex-1 flex flex-col min-w-0">
 
           {/* Mobile frosted header */}
-          <header className="lg:hidden flex items-center justify-between px-4 py-3.5 bg-white/75 backdrop-blur-xl border-b border-white/60 sticky top-[60px] z-30 shadow-sm shadow-teal-900/5">
+          <header className="lg:hidden flex items-center justify-between px-4 py-3.5 bg-white/75 backdrop-blur-xl border-b border-white/60 sticky top-0 z-30 shadow-sm shadow-teal-900/5">
             <button
               onClick={() => setOpen(true)}
               className="p-2 rounded-xl bg-white/60 border border-gray-200/60 text-gray-500 hover:text-teal-700 hover:border-teal-200 hover:bg-white/80 transition-all active:scale-95"

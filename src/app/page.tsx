@@ -325,8 +325,9 @@ export default function Home() {
                 onClick={() => setVideoOpen(true)}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "16px 32px", borderRadius: 18,
-                  backgroundColor: "#0D9488", color: "white", fontWeight: 700, fontSize: 17,
+                  padding: "14px clamp(20px,5vw,32px)", borderRadius: 18,
+                  backgroundColor: "#0D9488", color: "white", fontWeight: 700,
+                  fontSize: "clamp(14px,4vw,17px)",
                   boxShadow: "0 8px 32px rgba(13,148,136,0.35)",
                   border: "none", cursor: "pointer", fontFamily: "inherit",
                 }}
@@ -340,8 +341,9 @@ export default function Home() {
                 onClick={() => setAboutOpen(true)}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
-                  padding: "16px 32px", borderRadius: 18,
-                  backgroundColor: "white", color: "#0D9488", fontWeight: 700, fontSize: 17,
+                  padding: "14px clamp(20px,5vw,32px)", borderRadius: 18,
+                  backgroundColor: "white", color: "#0D9488", fontWeight: 700,
+                  fontSize: "clamp(14px,4vw,17px)",
                   border: "2px solid #0D9488",
                   cursor: "pointer", fontFamily: "inherit",
                 }}
@@ -667,7 +669,7 @@ export default function Home() {
               style={{
                 maxWidth: 680, width: "100%",
                 backgroundColor: "#F8F5F0",
-                borderRadius: 24, padding: 48,
+                borderRadius: 24, padding: "clamp(20px,5vw,48px)",
                 boxShadow: "0 30px 80px rgba(0,0,0,0.25)",
                 position: "relative",
                 direction: "rtl",
@@ -772,7 +774,7 @@ export default function Home() {
               </div>
 
               {/* Stats row */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 24, marginBottom: 24 }}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-6 mb-6">
                 {[
                   { num: "+500", label: "عميل سعيد" },
                   { num: "98%",  label: "معدل الرضا" },
@@ -780,7 +782,7 @@ export default function Home() {
                 ].map(({ num, label }) => (
                   <div key={label} style={{ textAlign: "center", padding: "16px 8px", backgroundColor: "white", borderRadius: 14, border: "1px solid rgba(190,175,155,0.22)" }}>
                     <p style={{ fontSize: 22, fontWeight: 900, color: "#3D7A5E", lineHeight: 1.1 }}>{num}</p>
-                    <p style={{ fontSize: 11, color: "#aaa", fontWeight: 600, marginTop: 4 }}>{label}</p>
+                    <p style={{ fontSize: 12, color: "#aaa", fontWeight: 600, marginTop: 4 }}>{label}</p>
                   </div>
                 ))}
               </div>

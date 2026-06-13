@@ -104,7 +104,7 @@ export default function WeightPage() {
     padding: "12px 14px", borderRadius: 12,
     border: "1.5px solid rgba(190,175,155,0.35)",
     backgroundColor: "#FCFAF6",
-    fontSize: 14, fontFamily: "inherit", color: "#1a2e22",
+    fontSize: 16, fontFamily: "inherit", color: "#1a2e22",
     outline: "none", direction: "rtl",
   };
 
@@ -208,7 +208,7 @@ export default function WeightPage() {
                 })}
               </div>
             )}
-            <p style={{ fontSize: 10, color: "#ccc", marginTop: 6, textAlign: "center" }}>
+            <p style={{ fontSize: 12, color: "#ccc", marginTop: 6, textAlign: "center" }}>
               {loading ? "" : `آخر ${history.length} قراءات`}
             </p>
           </motion.div>

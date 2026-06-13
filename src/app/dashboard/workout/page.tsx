@@ -59,7 +59,7 @@ export default function WorkoutPage() {
       </motion.div>
 
       {/* ── Stat mini-cards ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 24 }}>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {stats.map(({ label, value, icon: Icon, color }, i) => (
           <motion.div
             key={label}
@@ -81,7 +81,7 @@ export default function WorkoutPage() {
               <Icon size={20} color={color} />
             </div>
             <p style={{ fontSize: 15, fontWeight: 900, color: "#1a1a1a", marginBottom: 2 }}>{value}</p>
-            <p style={{ fontSize: 11, color: "#aaa", fontWeight: 600 }}>{label}</p>
+            <p style={{ fontSize: 12, color: "#aaa", fontWeight: 600 }}>{label}</p>
           </motion.div>
         ))}
       </div>
@@ -129,7 +129,7 @@ export default function WorkoutPage() {
                 whileHover={{ x: -4 }}
                 whileTap={{ scale: 0.98 }}
                 style={{
-                  display: "flex", alignItems: "center", gap: 14,
+                  display: "flex", alignItems: "flex-start", gap: 14,
                   padding: "16px 18px", borderRadius: 16,
                   background: isDone ? "rgba(61,122,94,0.08)" : "rgba(248,245,240,0.8)",
                   border: `1.5px solid ${isDone ? "rgba(61,122,94,0.25)" : "rgba(190,175,155,0.22)"}`,
@@ -154,22 +154,21 @@ export default function WorkoutPage() {
                   }}>
                     {ex.nameAr}
                   </p>
-                  <p style={{ fontSize: 12, color: "#bbb" }}>{ex.nameEn}</p>
-                </div>
-
-                <div style={{ display: "flex", gap: 10, flexShrink: 0 }}>
-                  <span style={{
-                    background: "rgba(61,122,94,0.10)", color: "#3D7A5E",
-                    fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 20,
-                  }}>
-                    {ex.sets}×{ex.reps}
-                  </span>
-                  <span style={{
-                    background: "rgba(190,175,155,0.15)", color: "#888",
-                    fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
-                  }}>
-                    {ex.rest}
-                  </span>
+                  <p style={{ fontSize: 12, color: "#bbb", marginBottom: 6 }}>{ex.nameEn}</p>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{
+                      background: "rgba(61,122,94,0.10)", color: "#3D7A5E",
+                      fontSize: 12, fontWeight: 700, padding: "4px 12px", borderRadius: 20,
+                    }}>
+                      {ex.sets}×{ex.reps}
+                    </span>
+                    <span style={{
+                      background: "rgba(190,175,155,0.15)", color: "#888",
+                      fontSize: 12, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
+                    }}>
+                      {ex.rest}
+                    </span>
+                  </div>
                 </div>
               </motion.button>
             );

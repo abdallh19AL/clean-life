@@ -59,7 +59,7 @@ function Calendar() {
       {/* Week headers */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 4, marginBottom: 8 }}>
         {weekLabels.map(d => (
-          <div key={d} style={{ textAlign: "center", fontSize: 11, color: "#bbb", fontWeight: 700, padding: "4px 0" }}>
+          <div key={d} style={{ textAlign: "center", fontSize: 12, color: "#bbb", fontWeight: 700, padding: "4px 0" }}>
             {d}
           </div>
         ))}
@@ -75,7 +75,7 @@ function Calendar() {
               key={i}
               whileHover={day ? { scale: 1.1 } : {}}
               style={{
-                height: 38, borderRadius: 10,
+                height: 44, borderRadius: 10,
                 display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center",
                 position: "relative",
@@ -103,11 +103,11 @@ function Calendar() {
       <div style={{ display: "flex", alignItems: "center", gap: 16, marginTop: 16, justifyContent: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{ width: 12, height: 12, borderRadius: 4, backgroundColor: "#3D7A5E" }} />
-          <span style={{ fontSize: 11, color: "#888" }}>اليوم</span>
+          <span style={{ fontSize: 12, color: "#888" }}>اليوم</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#3D7A5E" }} />
-          <span style={{ fontSize: 11, color: "#888" }}>يوجد موعد</span>
+          <span style={{ fontSize: 12, color: "#888" }}>يوجد موعد</span>
         </div>
       </div>
     </div>
@@ -137,7 +137,7 @@ function AppointmentCard({ appt, delay }: { appt: typeof appointments[0]; delay:
         border: `1.5px solid ${appt.color}30`,
       }}>
         <span style={{ fontSize: 22, fontWeight: 900, color: appt.color, lineHeight: 1 }}>{appt.day}</span>
-        <span style={{ fontSize: 9, fontWeight: 700, color: appt.color }}>{appt.month}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: appt.color }}>{appt.month}</span>
       </div>
 
       {/* Details */}
@@ -145,7 +145,7 @@ function AppointmentCard({ appt, delay }: { appt: typeof appointments[0]; delay:
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
           <p style={{ fontSize: 14, fontWeight: 800, color: "#1a1a1a" }}>{appt.type}</p>
           <span style={{
-            fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20,
+            fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 20,
             background: isConfirmed ? "rgba(61,122,94,0.12)" : "rgba(224,122,95,0.12)",
             color: isConfirmed ? "#3D7A5E" : "#E07A5F",
             display: "flex", alignItems: "center", gap: 4, flexShrink: 0,
@@ -202,7 +202,7 @@ export default function AppointmentsPage() {
       </motion.div>
 
       {/* ── Two-column layout ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "60% 1fr", gap: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[60%_1fr] gap-5">
 
         {/* Calendar */}
         <motion.div

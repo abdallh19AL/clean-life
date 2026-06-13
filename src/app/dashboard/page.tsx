@@ -64,7 +64,7 @@ function MetricCard({ label, icon: Icon, value, sub, color }: {
         <Icon size={23} color={color} />
       </div>
       <p style={{ color: "#999", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em" }}>{label}</p>
-      <p style={{ color: "#1a1a1a", fontSize: 28, fontWeight: 900, lineHeight: 1 }}>{value}</p>
+      <p style={{ color: "#1a1a1a", fontSize: "clamp(20px, 5vw, 28px)", fontWeight: 900, lineHeight: 1 }}>{value}</p>
       <p style={{ color: "#bbb", fontSize: 12 }}>{sub}</p>
     </motion.div>
   );
@@ -166,7 +166,7 @@ function PerformanceCard({ cups, calories }: { cups: number | null; calories: nu
       <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 22 }}>
         {METRICS.map(({ label, pct, color, bg }) => (
           <div key={label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#555", width: 168, flexShrink: 0, textAlign: "right" }}>
+            <span className="lg:w-[168px] lg:flex-shrink-0" style={{ fontSize: 13, fontWeight: 700, color: "#555", textAlign: "right" }}>
               {label}
             </span>
             <AnimatedBar pct={pct} color={color} bg={bg} />
@@ -201,7 +201,7 @@ const quickInputStyle: React.CSSProperties = {
   width: "100%", boxSizing: "border-box",
   padding: "10px 12px", borderRadius: 12,
   border: "1.5px solid rgba(190,175,155,0.35)",
-  backgroundColor: "#FCFAF6", fontSize: 15,
+  backgroundColor: "#FCFAF6", fontSize: 16,
   fontFamily: "inherit", color: "#1a2e22",
   outline: "none", direction: "rtl", textAlign: "center",
   transition: "border-color 0.2s",
@@ -371,13 +371,15 @@ export default function DashboardPage() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         style={{ marginBottom: 24 }}
       >
-        <div style={{
-          background: "linear-gradient(135deg, #1B4332 0%, #2D6A4F 40%, #40916C 75%, #52B788 100%)",
-          borderRadius: 26, padding: "36px 40px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          position: "relative", overflow: "hidden",
-          boxShadow: "0 12px 40px rgba(27,67,50,0.30)",
-        }}>
+        <div
+          className="flex items-center justify-between px-5 py-7 sm:px-10 sm:py-9"
+          style={{
+            background: "linear-gradient(135deg, #1B4332 0%, #2D6A4F 40%, #40916C 75%, #52B788 100%)",
+            borderRadius: 26,
+            position: "relative", overflow: "hidden",
+            boxShadow: "0 12px 40px rgba(27,67,50,0.30)",
+          }}
+        >
           <div style={{ position: "absolute", top: -50, right: -50, width: 200, height: 200, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: -40, left: -40, width: 180, height: 180, borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", top: "20%", left: "42%", width: 90, height: 90, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
@@ -386,7 +388,7 @@ export default function DashboardPage() {
             <h1 style={{ color: "#fff", fontSize: 34, fontWeight: 900, margin: "0 0 10px", lineHeight: 1.15 }}>مرحباً، {userName} 👋</h1>
             <p style={{ color: "rgba(255,255,255,0.62)", fontSize: 14, lineHeight: 1.7, maxWidth: 380 }}>هذا ملخص صحتك اليوم — ابدأ رحلتك نحو الأفضل</p>
           </div>
-          <div style={{ position: "relative", zIndex: 1, textAlign: "center", flexShrink: 0 }}>
+          <div className="hidden sm:block" style={{ position: "relative", zIndex: 1, textAlign: "center", flexShrink: 0 }}>
             <p style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{getArabicDate()}</p>
             <span style={{
               display: "inline-block", background: "rgba(255,255,255,0.15)",
@@ -456,7 +458,7 @@ export default function DashboardPage() {
       <motion.div
         variants={stagger} initial="hidden" animate="visible"
         transition={{ delayChildren: 0.15 }}
-        style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 18, marginBottom: 24 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-[18px] mb-6"
       >
         <MetricCard
           label="الوزن الحالي" icon={Scale} color="#3D7A5E"
@@ -640,7 +642,7 @@ export default function DashboardPage() {
       <motion.div
         variants={fadeUp} initial="hidden" animate="visible"
         transition={{ delay: 0.38, duration: 0.45, ease: "easeOut" }}
-        style={{ display: "grid", gridTemplateColumns: "60% 1fr", gap: 18, marginBottom: 24 }}
+        className="grid grid-cols-1 lg:grid-cols-[60%_1fr] gap-[18px] mb-6"
       >
         <div style={{
           background: "rgba(255,255,255,0.92)", border: "1.5px solid rgba(190,175,155,0.20)",
@@ -726,7 +728,7 @@ export default function DashboardPage() {
           <motion.div
             variants={stagger} initial="hidden" animate="visible"
             transition={{ delayChildren: 0.52 }}
-            style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
           >
             <QuickActionButton label="تسجيل الوزن اليومي" icon={Scale}    bg="rgba(61,122,94,0.10)"   color="#3D7A5E" onClick={() => router.push("/dashboard/weight")} />
             <QuickActionButton label="تسجيل الماء"         icon={Droplets} bg="rgba(91,140,191,0.10)"  color="#5B8CBF" onClick={() => router.push("/dashboard/water")} />

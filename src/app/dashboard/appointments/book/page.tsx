@@ -52,7 +52,7 @@ const inputStyle: React.CSSProperties = {
   padding: "12px 14px", borderRadius: 12,
   border: "1.5px solid rgba(190,175,155,0.35)",
   backgroundColor: "#FCFAF6",
-  fontSize: 14, fontFamily: "inherit", color: "#1a2e22",
+  fontSize: 16, fontFamily: "inherit", color: "#1a2e22",
   outline: "none", direction: "rtl",
   transition: "border-color 0.2s",
 };

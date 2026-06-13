@@ -68,7 +68,7 @@ function Field({
     padding: "12px 14px", borderRadius: 12,
     border: `1.5px solid ${focused ? "#3D7A5E" : "rgba(190,175,155,0.35)"}`,
     backgroundColor: focused ? "#FAFAF8" : "#FCFAF6",
-    fontSize: 14, fontFamily: "inherit", color: "#1a2e22",
+    fontSize: 16, fontFamily: "inherit", color: "#1a2e22",
     outline: "none", direction: "rtl",
     transition: "border-color 0.2s, background 0.2s",
     boxShadow: focused ? "0 0 0 3px rgba(61,122,94,0.08)" : "none",

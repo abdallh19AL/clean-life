@@ -114,7 +114,7 @@ export default function SiteNavbar({
           }}>لوحة التحكم</Link>
         ) : (
           <>
-            <Link href="/login" style={{
+            <Link href="/login" className="hidden md:inline-flex items-center" style={{
               padding: "8px 20px", borderRadius: 12,
               color: "#2D6A4F", fontSize: 13.5, fontWeight: 700,
               textDecoration: "none", border: "1.5px solid rgba(45,106,79,0.35)",

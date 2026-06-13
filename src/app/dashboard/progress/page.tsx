@@ -160,7 +160,7 @@ export default function ProgressPage() {
   const bfInputStyle: React.CSSProperties = {
     flex: 1, padding: "10px 14px", borderRadius: 12,
     border: "1.5px solid rgba(190,175,155,0.35)",
-    backgroundColor: "#FCFAF6", fontSize: 15,
+    backgroundColor: "#FCFAF6", fontSize: 16,
     fontFamily: "inherit", color: "#1a2e22",
     outline: "none", direction: "rtl", textAlign: "center",
     transition: "border-color 0.2s",
@@ -186,7 +186,7 @@ export default function ProgressPage() {
       {/* ── Stat cards ── */}
       <motion.div
         {...fadeUp(0.1)}
-        style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18, marginBottom: 24 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-[18px] mb-6"
       >
         {/* Weight */}
         <motion.div
@@ -200,7 +200,7 @@ export default function ProgressPage() {
           }}>
             <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#3D7A5E" }} />
           </div>
-          <p style={{ color: "#999", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", marginBottom: 4 }}>
+          <p style={{ color: "#999", fontSize: 12, fontWeight: 700, letterSpacing: "0.07em", marginBottom: 4 }}>
             الوزن الحالي
           </p>
           <p style={{ color: "#1a1a1a", fontSize: 26, fontWeight: 900, marginBottom: 4 }}>
@@ -230,7 +230,7 @@ export default function ProgressPage() {
           }}>
             <div style={{ width: 18, height: 18, borderRadius: "50%", background: bmiCat ? bmiCat.color : "#5B8CBF" }} />
           </div>
-          <p style={{ color: "#999", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", marginBottom: 4 }}>
+          <p style={{ color: "#999", fontSize: 12, fontWeight: 700, letterSpacing: "0.07em", marginBottom: 4 }}>
             مؤشر كتلة الجسم
           </p>
           <p style={{ color: "#1a1a1a", fontSize: 26, fontWeight: 900, marginBottom: 4 }}>
@@ -256,7 +256,7 @@ export default function ProgressPage() {
           }}>
             <div style={{ width: 18, height: 18, borderRadius: "50%", background: "#E07A5F" }} />
           </div>
-          <p style={{ color: "#999", fontSize: 11, fontWeight: 700, letterSpacing: "0.07em", marginBottom: 4 }}>
+          <p style={{ color: "#999", fontSize: 12, fontWeight: 700, letterSpacing: "0.07em", marginBottom: 4 }}>
             نسبة الدهون
           </p>
           <p style={{ color: "#1a1a1a", fontSize: 26, fontWeight: 900, marginBottom: 4 }}>
@@ -316,13 +316,13 @@ export default function ProgressPage() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(190,175,155,0.20)" vertical={false} />
               <XAxis
                 dataKey="day"
-                tick={{ fill: "#bbb", fontSize: 11, fontFamily: "Cairo" }}
+                tick={{ fill: "#bbb", fontSize: 12, fontFamily: "Cairo" }}
                 tickLine={false} axisLine={false}
                 interval="preserveStartEnd"
               />
               <YAxis
                 domain={[yMin, yMax]}
-                tick={{ fill: "#bbb", fontSize: 11, fontFamily: "Cairo" }}
+                tick={{ fill: "#bbb", fontSize: 12, fontFamily: "Cairo" }}
                 tickLine={false} axisLine={false}
               />
               <Tooltip
@@ -344,7 +344,7 @@ export default function ProgressPage() {
       {/* ── BMI analysis + Body fat ── */}
       <motion.div
         {...fadeUp(0.3)}
-        style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-[18px]"
       >
 
         {/* BMI card */}
@@ -416,7 +416,7 @@ export default function ProgressPage() {
                 }}>
                   {bmiCat.label}
                 </span>
-                <p style={{ fontSize: 11, color: "#bbb", marginTop: 6 }}>
+                <p style={{ fontSize: 12, color: "#bbb", marginTop: 6 }}>
                   {heightCm} سم — {latestWeight} كغ
                 </p>
               </div>
@@ -425,7 +425,7 @@ export default function ProgressPage() {
               <div>
                 <div style={{
                   display: "flex", justifyContent: "space-between",
-                  fontSize: 9, color: "#bbb", marginBottom: 6,
+                  fontSize: 12, color: "#bbb", marginBottom: 6,
                 }}>
                   <span style={{ flex: 1 }}>نحيف<br/>{"<18.5"}</span>
                   <span style={{ flex: 1.5, textAlign: "center" }}>طبيعي<br/>18.5–25</span>
@@ -545,7 +545,7 @@ export default function ProgressPage() {
             paddingTop: 14, borderTop: "1px solid rgba(190,175,155,0.18)",
             marginTop: 4,
           }}>
-            <p style={{ fontSize: 11, color: "#bbb", lineHeight: 1.65 }}>
+            <p style={{ fontSize: 12, color: "#bbb", lineHeight: 1.65 }}>
               ⚠️ يتطلب قياساً بأجهزة مختصة (مثل جهاز قياس الدهون أو InBody) للحصول على نتيجة دقيقة
             </p>
           </div>

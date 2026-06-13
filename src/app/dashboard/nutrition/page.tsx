@@ -56,8 +56,8 @@ function MacroBar({ label, grams, max, color }: { label: string; grams: number; 
   return (
     <div style={{ marginBottom: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: 11, color: "#888", fontWeight: 600 }}>{label}</span>
-        <span style={{ fontSize: 11, color, fontWeight: 700 }}>{grams} غ</span>
+        <span style={{ fontSize: 12, color: "#888", fontWeight: 600 }}>{label}</span>
+        <span style={{ fontSize: 12, color, fontWeight: 700 }}>{grams} غ</span>
       </div>
       <div style={{ height: 5, borderRadius: 999, background: "rgba(190,175,155,0.20)", overflow: "hidden" }}>
         <motion.div
@@ -193,7 +193,7 @@ export default function NutritionPage() {
           <a
             href="/dashboard/calculator"
             style={{
-              fontSize: 11, fontWeight: 800, color: "#5B8CBF",
+              fontSize: 12, fontWeight: 800, color: "#5B8CBF",
               textDecoration: "none", flexShrink: 0, whiteSpace: "nowrap",
               borderBottom: "1.5px solid rgba(91,140,191,0.4)",
             }}
@@ -204,7 +204,7 @@ export default function NutritionPage() {
       </motion.div>
 
       {/* ── Meal cards ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 18, marginBottom: 24 }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-[18px] mb-6">
         {meals.map((meal, i) => {
           const Icon = meal.icon;
           return (

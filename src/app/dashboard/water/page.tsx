@@ -181,7 +181,7 @@ export default function WaterPage() {
           اضغط على الكوب لتسجيله
         </h2>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+        <div className="grid grid-cols-4 gap-4">
           {cups.map((isFilled, i) => (
             <motion.button
               key={i}
@@ -220,7 +220,7 @@ export default function WaterPage() {
                   strokeWidth="2" strokeLinecap="round" fill="none"
                 />
               </svg>
-              <span style={{ fontSize: 11, fontWeight: 700, color: isFilled ? "#5B8CBF" : "#bbb" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: isFilled ? "#5B8CBF" : "#bbb" }}>
                 {i + 1}
               </span>
             </motion.button>
@@ -231,7 +231,7 @@ export default function WaterPage() {
       </motion.div>
 
       {/* Stats row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 20 }}>
+      <div className="grid grid-cols-3 gap-[14px] mb-5">
         {[
           { label: "مشروب",  value: liters,                                unit: "لتر", color: "#5B8CBF", bg: "rgba(91,140,191,0.08)"  },
           { label: "متبقي",  value: ((GOAL - filled) * 0.25).toFixed(2), unit: "لتر", color: "#E07A5F", bg: "rgba(224,122,95,0.08)"  },
@@ -242,7 +242,7 @@ export default function WaterPage() {
             borderRadius: 16, padding: "16px 12px", textAlign: "center",
           }}>
             <p style={{ fontSize: 20, fontWeight: 900, color, lineHeight: 1 }}>{value}</p>
-            <p style={{ fontSize: 11, color: "#aaa", fontWeight: 600 }}>{unit}</p>
+            <p style={{ fontSize: 12, color: "#aaa", fontWeight: 600 }}>{unit}</p>
             <p style={{ fontSize: 12, color: "#666", fontWeight: 700, marginTop: 4 }}>{label}</p>
           </div>
         ))}

@@ -77,7 +77,7 @@ const baseInput: React.CSSProperties = {
   padding: "11px 14px", borderRadius: 12,
   border: "1.5px solid rgba(190,175,155,0.35)",
   backgroundColor: "#FCFAF6",
-  fontSize: 14, fontFamily: "inherit", color: "#1a2e22",
+  fontSize: 16, fontFamily: "inherit", color: "#1a2e22",
   outline: "none", direction: "rtl", transition: "border-color 0.2s",
 };
 
@@ -531,7 +531,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Stats row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-[14px] mb-5">
           {stats.map(({ label, value }) => (
             <motion.div
               key={label}
@@ -823,10 +823,10 @@ export default function SettingsPage() {
       </div>
 
       {/* ── 2-column layout ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "280px 1fr", gap: 24, alignItems: "start" }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 items-start">
 
         {/* ── LEFT SIDEBAR ── */}
-        <div style={{ position: "sticky", top: 88 }}>
+        <div className="lg:sticky lg:top-[88px]">
           <div style={{ ...CARD, padding: 24 }}>
 
             {/* Avatar */}

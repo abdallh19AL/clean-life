@@ -53,7 +53,7 @@ function FormInput({
         borderRadius:    12,
         border:          `1.5px solid ${focused ? "#3D7A5E" : "rgba(190,175,155,0.4)"}`,
         backgroundColor: focused ? "#FAFAF8" : "#FCFAF6",
-        fontSize:        "0.95rem",
+        fontSize:        "1rem",
         fontFamily:      "inherit",
         color:           "#1A2E22",
         outline:         "none",

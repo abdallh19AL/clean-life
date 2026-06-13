@@ -157,7 +157,7 @@ export default function ServicesPage() {
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}>
               <div>
-                <p style={{ fontSize: 11, color: "#aaa", fontWeight: 600, marginBottom: 2 }}>ابتداءً من</p>
+                <p style={{ fontSize: 12, color: "#aaa", fontWeight: 600, marginBottom: 2 }}>ابتداءً من</p>
                 <p style={{ fontSize: 20, fontWeight: 900, color: svc.color }}>99 دينار</p>
               </div>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>

@@ -9,6 +9,7 @@ import {
   Home as HomeIcon, ShoppingBag,
 } from "lucide-react";
 import SiteNavbar from "@/components/SiteNavbar";
+import { createClient } from "@/utils/supabase/client";
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -183,10 +184,11 @@ export default function CalculatorPage() {
   const [gender,   setGender]   = useState<Gender>("male");
   const [activity, setActivity] = useState<Activity>("moderate");
   const [goal,     setGoal]     = useState<Goal>("maintain");
-  const [results,  setResults]  = useState<Results | null>(null);
-  const [error,    setError]    = useState("");
+  const [results,    setResults]    = useState<Results | null>(null);
+  const [error,      setError]      = useState("");
+  const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "guest">("idle");
 
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     const w = parseFloat(weight);
     const h = parseFloat(height);
     const a = parseFloat(age);
@@ -200,7 +202,25 @@ export default function CalculatorPage() {
     if (a < 10  || a > 100) { setError("العمر يجب أن يكون بين 10 و 100 سنة");    return; }
 
     setError("");
-    setResults(computeResults(w, h, a, gender, activity, goal));
+    const computed = computeResults(w, h, a, gender, activity, goal);
+    setResults(computed);
+
+    // Save calorie_goal to profiles if logged in
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setSaveStatus("guest");
+        return;
+      }
+      setSaveStatus("saving");
+      await supabase
+        .from("profiles")
+        .upsert({ id: user.id, calorie_goal: computed.calories }, { onConflict: "id" });
+      setSaveStatus("saved");
+    } catch {
+      setSaveStatus("idle");
+    }
   };
 
   /* ── colour helpers for active goal ──────────────────────────────── */
@@ -411,6 +431,50 @@ export default function CalculatorPage() {
                 <Calculator size={20} />
                 احسب احتياجاتك
               </button>
+
+              {/* ── Save status banner ── */}
+              <AnimatePresence>
+                {saveStatus === "saved" && (
+                  <motion.div
+                    key="saved"
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    style={{
+                      backgroundColor: "#F0FDF4",
+                      border: "1px solid #86EFAC",
+                      borderRadius: 10,
+                      padding: "10px 14px",
+                      fontSize: "0.85rem",
+                      fontWeight: 700,
+                      color: "#16A34A",
+                      textAlign: "center",
+                    }}
+                  >
+                    ✓ تم حفظ هدفك السعري في ملفك الشخصي
+                  </motion.div>
+                )}
+                {saveStatus === "guest" && (
+                  <motion.div
+                    key="guest"
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    style={{
+                      backgroundColor: "#FFFBEB",
+                      border: "1px solid #FDE68A",
+                      borderRadius: 10,
+                      padding: "10px 14px",
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      color: "#92400E",
+                      textAlign: "center",
+                    }}
+                  >
+                    💡 سجّل دخولك لحفظ هدفك تلقائياً وربطه بخطة التمرين
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
 

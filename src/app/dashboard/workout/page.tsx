@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, Timer, Flame, Dumbbell, Clock } from "lucide-react";
 
@@ -22,6 +23,7 @@ const stats = [
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function WorkoutPage() {
+  const router = useRouter();
   const [done, setDone] = useState<Set<number>>(new Set());
 
   function toggle(id: number) {
@@ -197,6 +199,7 @@ export default function WorkoutPage() {
 
         {/* Start workout button */}
         <motion.button
+          onClick={() => router.push("/dashboard/workout/session")}
           whileHover={{ y: -3, boxShadow: "0 12px 28px rgba(45,106,79,0.35)" }}
           whileTap={{ scale: 0.97 }}
           style={{

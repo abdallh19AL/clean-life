@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Sparkles, Flame, Sun, Beef, Wheat, Droplets, History, Star } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -79,6 +80,20 @@ function mealRating(r: Result) {
   return                       { label: "ثقيلة جداً ⚠️",  color: "#c0392b", comment: "سعرات مرتفعة جداً، فكر في تقسيمها على وجبتين." };
 }
 
+/* ─── Rate-limit helpers ─────────────────────────────────────────────────── */
+
+const LIMIT_MS_CLIENT = 24 * 60 * 60 * 1000;
+
+function formatRemaining(lastUsedAt: string): string {
+  const remaining = new Date(lastUsedAt).getTime() + LIMIT_MS_CLIENT - Date.now();
+  if (remaining <= 0) return "";
+  const hours   = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+  if (hours > 0 && minutes > 0) return `يمكنك استخدام الحاسبة مرة أخرى بعد ${hours} ساعة و${minutes} دقيقة`;
+  if (hours > 0)                return `يمكنك استخدام الحاسبة مرة أخرى بعد ${hours} ساعة`;
+  return `يمكنك استخدام الحاسبة مرة أخرى بعد ${minutes} دقيقة`;
+}
+
 /* ─── Loading dots ───────────────────────────────────────────────────────── */
 
 function LoadingDots() {
@@ -105,8 +120,48 @@ export default function CalculatorPage() {
   const [error,     setError]     = useState("");
   const [history,   setHistory]   = useState<HistoryEntry[]>([]);
 
+  const [lastUsedAt,   setLastUsedAt]   = useState<string | null>(null);
+  const [limitLoading, setLimitLoading] = useState(true);
+  const [isGuest,      setIsGuest]      = useState(false);
+  const [tick,         setTick]         = useState(0);
+
+  /* Fetch last usage timestamp on mount */
+  useEffect(() => {
+    (async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { setIsGuest(true); setLimitLoading(false); return; }
+        const { data } = await supabase
+          .from("profiles")
+          .select("last_ai_calc_at")
+          .eq("id", user.id)
+          .maybeSingle();
+        setLastUsedAt(data?.last_ai_calc_at ?? null);
+      } catch {
+        // network error → assume unlocked, server will enforce
+      } finally {
+        setLimitLoading(false);
+      }
+    })();
+  }, []);
+
+  /* Tick every 60s to refresh countdown while locked */
+  useEffect(() => {
+    if (!lastUsedAt) return;
+    const remaining = new Date(lastUsedAt).getTime() + LIMIT_MS_CLIENT - Date.now();
+    if (remaining <= 0) return;
+    const id = setInterval(() => setTick(t => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, [lastUsedAt]);
+
+  /* isLocked re-evaluates on every render (tick forces re-render each minute) */
+  void tick;
+  const isLocked = !limitLoading && lastUsedAt !== null &&
+    (Date.now() - new Date(lastUsedAt).getTime()) < LIMIT_MS_CLIENT;
+
   async function analyze() {
-    if (!mealText.trim() || isLoading) return;
+    if (!mealText.trim() || isLoading || isLocked || isGuest) return;
     setIsLoading(true);
     setError("");
     setResult(null);
@@ -117,11 +172,19 @@ export default function CalculatorPage() {
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ meal: mealText }),
       });
-      const data: Result = await res.json();
+      const data = await res.json();
+
+      if (res.status === 429) {
+        setLastUsedAt(data.lastUsedAt ?? new Date().toISOString());
+        setError("لقد استخدمت الحاسبة بالفعل اليوم، يرجى الانتظار حتى الغد");
+        return;
+      }
+
       if (!res.ok || "error" in data) throw new Error();
 
-      setResult(data);
-      setHistory(prev => [{ id: Date.now(), meal: mealText, result: data }, ...prev].slice(0, 5));
+      setResult(data as Result);
+      setLastUsedAt(new Date().toISOString()); // lock UI immediately
+      setHistory(prev => [{ id: Date.now(), meal: mealText, result: data as Result }, ...prev].slice(0, 5));
     } catch {
       setError("تعذّر التحليل، تأكد من اتصالك وحاول مجدداً");
     } finally {
@@ -172,6 +235,23 @@ export default function CalculatorPage() {
         </p>
       </motion.div>
 
+      {/* ── Usage guidance ── */}
+      <motion.div {...fadeCard(0.03)} style={{
+        ...CARD,
+        marginBottom: 16,
+        backgroundColor: "rgba(61,122,94,0.06)",
+        border: "1px solid rgba(61,122,94,0.18)",
+        padding: "14px 18px",
+      }}>
+        <p style={{ fontSize: 13, fontWeight: 800, color: "#2D6A4F", marginBottom: 6 }}>
+          ℹ️ كيف تستخدم الحاسبة بشكل صحيح
+        </p>
+        <ul style={{ fontSize: 12, color: "#3D7A5E", lineHeight: 2, margin: 0, paddingRight: 18, paddingLeft: 0 }}>
+          <li>تعمل الحاسبة مرة واحدة كل 24 ساعة لكل مستخدم</li>
+          <li>للحصول على أدق النتائج، استخدمها في نهاية يومك بعد تسجيل جميع وجباتك</li>
+        </ul>
+      </motion.div>
+
       {/* ── Input card ── */}
       <motion.div {...fadeCard(0.05)} style={{ ...CARD, marginBottom: 24 }}>
         <textarea
@@ -198,30 +278,59 @@ export default function CalculatorPage() {
 
         <motion.button
           onClick={analyze}
-          disabled={isLoading || !mealText.trim()}
-          whileHover={!isLoading && mealText.trim() ? { y: -2, boxShadow: "0 10px 24px rgba(45,106,79,0.30)" } : {}}
-          whileTap={!isLoading && mealText.trim() ? { scale: 0.97 } : {}}
+          disabled={isLoading || !mealText.trim() || isLocked || limitLoading || isGuest}
+          whileHover={!isLoading && mealText.trim() && !isLocked && !isGuest ? { y: -2, boxShadow: "0 10px 24px rgba(45,106,79,0.30)" } : {}}
+          whileTap={!isLoading && mealText.trim() && !isLocked && !isGuest ? { scale: 0.97 } : {}}
           style={{
             width: "100%", padding: "14px",
             borderRadius: 14, border: "none",
-            background: isLoading || !mealText.trim()
+            background: isLoading || !mealText.trim() || isLocked || limitLoading || isGuest
               ? "rgba(190,175,155,0.25)"
               : "linear-gradient(135deg, #2D6A4F, #40916C)",
-            color: isLoading || !mealText.trim() ? "#aaa" : "white",
+            color: isLoading || !mealText.trim() || isLocked || limitLoading || isGuest ? "#aaa" : "white",
             fontWeight: 800, fontSize: 16,
             fontFamily: "inherit",
-            cursor: isLoading || !mealText.trim() ? "not-allowed" : "pointer",
+            cursor: isLoading || !mealText.trim() || isLocked || limitLoading || isGuest ? "not-allowed" : "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
             transition: "background 0.2s",
-            boxShadow: isLoading || !mealText.trim() ? "none" : "0 4px 16px rgba(45,106,79,0.25)",
+            boxShadow: isLoading || !mealText.trim() || isLocked || limitLoading || isGuest ? "none" : "0 4px 16px rgba(45,106,79,0.25)",
+            minHeight: 44,
           }}
         >
-          {isLoading ? (
-            <><LoadingDots /> جاري التحليل...</>
-          ) : (
-            "احسب وجبتي 🔍"
-          )}
+          {isLocked
+            ? "تم الاستخدام اليوم ✓"
+            : isLoading
+              ? <><LoadingDots /> جاري التحليل...</>
+              : "احسب وجبتي 🔍"
+          }
         </motion.button>
+
+        {/* Countdown when locked */}
+        {isLocked && lastUsedAt && (
+          <div style={{
+            marginTop: 12, padding: "12px 16px", borderRadius: 12, textAlign: "center",
+            backgroundColor: "rgba(217,119,6,0.08)", border: "1px solid rgba(217,119,6,0.20)",
+          }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#92400E", marginBottom: 2 }}>
+              🕐 لقد استخدمت الحاسبة اليوم
+            </p>
+            <p style={{ fontSize: 12, color: "#92400E" }}>
+              {formatRemaining(lastUsedAt)}
+            </p>
+          </div>
+        )}
+
+        {/* Guest prompt */}
+        {!limitLoading && isGuest && (
+          <div style={{
+            marginTop: 12, padding: "12px 16px", borderRadius: 12, textAlign: "center",
+            backgroundColor: "rgba(91,140,191,0.08)", border: "1px solid rgba(91,140,191,0.20)",
+          }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#3a6ea0" }}>
+              💡 سجّل دخولك لاستخدام الحاسبة الذكية
+            </p>
+          </div>
+        )}
       </motion.div>
 
       {/* ── Error ── */}

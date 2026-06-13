@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/client";
 import {
   LayoutDashboard, TrendingUp, Utensils, Dumbbell, CalendarDays,
   X, Menu, User, Home, ShoppingBag, Calculator,
-  ChevronDown, Settings, LogOut,
+  ChevronDown, Settings, LogOut, NotebookPen,
 } from "lucide-react";
 
 /* ─── Sidebar nav links ──────────────────────────────────────────────────── */
@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/dashboard/workout",      label: "جدول التدريب",   icon: Dumbbell        },
   { href: "/dashboard/appointments", label: "المواعيد",        icon: CalendarDays    },
   { href: "/dashboard/calculator",   label: "حاسبة التغذية",  icon: Calculator      },
+  { href: "/dashboard/notes",        label: "الملاحظات",       icon: NotebookPen     },
   { href: "/dashboard/settings",     label: "الإعدادات",       icon: Settings        },
 ];
 

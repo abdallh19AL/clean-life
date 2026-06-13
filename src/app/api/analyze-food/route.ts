@@ -2,22 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-/* ── In-memory rate limit: max 10 requests per user per 60 seconds ── */
-const rateLimitMap = new Map<string, number[]>();
-const RATE_LIMIT  = 10;
-const WINDOW_MS   = 60_000;
-
-function checkRateLimit(userId: string): boolean {
-  const now        = Date.now();
-  const timestamps = (rateLimitMap.get(userId) ?? []).filter(t => now - t < WINDOW_MS);
-  if (timestamps.length >= RATE_LIMIT) return false;
-  timestamps.push(now);
-  rateLimitMap.set(userId, timestamps);
-  return true;
-}
+const LIMIT_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function POST(req: NextRequest) {
-  /* ── 1. Auth ── */
+  /* ── 1. Auth (server-side — never trust client-sent id) ── */
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,29 +23,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  /* ── 2. Rate limit ── */
-  if (!checkRateLimit(user.id)) {
+  /* ── 2. 24-hour rate limit (DB-backed, per user) ── */
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("last_ai_calc_at")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const lastUsedAt: string | null = profile?.last_ai_calc_at ?? null;
+  if (lastUsedAt !== null && Date.now() - new Date(lastUsedAt).getTime() < LIMIT_MS) {
     return NextResponse.json(
-      { error: "Too many requests — please wait a minute before trying again" },
+      {
+        error: "يمكنك استخدام الحاسبة مرة واحدة كل 24 ساعة",
+        lastUsedAt,
+      },
       { status: 429 }
     );
   }
 
   /* ── 3. Parse & validate input ── */
+  let meal: string;
   try {
-    const { meal } = await req.json();
-
-    if (!meal) {
-      return NextResponse.json({ error: "No meal provided" }, { status: 400 });
-    }
+    const body = await req.json();
+    meal = body.meal;
+    if (!meal) return NextResponse.json({ error: "No meal provided" }, { status: 400 });
     if (typeof meal !== "string" || meal.length > 500) {
       return NextResponse.json(
         { error: "Meal description must be a string under 500 characters" },
         { status: 400 }
       );
     }
+  } catch {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
 
-    /* ── 4. Call OpenRouter ── */
+  /* ── 4. Call OpenRouter ── */
+  try {
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -92,6 +93,11 @@ export async function POST(req: NextRequest) {
     const text   = data.choices[0].message.content.trim();
     const clean  = text.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(clean);
+
+    /* ── 5. Record usage — only after a successful AI response ── */
+    await supabase
+      .from("profiles")
+      .upsert({ id: user.id, last_ai_calc_at: new Date().toISOString() }, { onConflict: "id" });
 
     return NextResponse.json(parsed);
   } catch (err) {

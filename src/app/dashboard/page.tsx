@@ -695,9 +695,10 @@ export default function DashboardPage() {
             </motion.div>
             <p style={{ color: "#333", fontSize: 16, fontWeight: 800, marginBottom: 10 }}>لم يتم تحديد خطتك بعد</p>
             <p style={{ color: "#bbb", fontSize: 13, lineHeight: 1.75, maxWidth: 300, margin: "0 auto 28px" }}>
-              احجز استشارتك الأولى مع أحد خبرائنا لوضع خطة مخصصة لك
+              اكتشف وصفاتنا الصحية اللذيذة التي تناسب أهدافك الغذائية
             </p>
             <motion.button
+              onClick={() => router.push("/recipes")}
               whileHover={{ y: -3, boxShadow: "0 10px 28px rgba(45,106,79,0.35)" }}
               whileTap={{ scale: 0.97 }}
               style={{
@@ -707,9 +708,10 @@ export default function DashboardPage() {
                 fontFamily: "inherit", cursor: "pointer",
                 display: "inline-flex", alignItems: "center", gap: 8,
                 boxShadow: "0 4px 18px rgba(45,106,79,0.28)",
+                minHeight: 44,
               }}
             >
-              احجز استشارة <ChevronLeft size={16} />
+              وصفاتنا الصحية <ChevronLeft size={16} />
             </motion.button>
           </div>
         </div>

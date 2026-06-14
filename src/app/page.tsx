@@ -240,7 +240,7 @@ export default function Home() {
     <div dir="rtl" style={{ fontFamily: "'Cairo', sans-serif", backgroundColor: "#F7F3EC", color: "#1C1917" }}>
 
       {/* ── FIX 1: Sticky landing navbar ── */}
-      <SiteNavbar ctaLabel="احجز استشارة" ctaHref="/login" />
+      <SiteNavbar ctaLabel="وصفاتنا الصحية" ctaHref="/recipes" />
 
       {/* ══════════════════════════════════════════════════════════════
           HERO

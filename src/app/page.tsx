@@ -153,23 +153,6 @@ const iconVars = {
   hover:   { rotate: [0, -10, 10, 0], transition: { duration: 0.45 } },
 };
 
-/* ─── GlowBlob ───────────────────────────────────────────────────────────── */
-
-function GlowBlob({ color, delay = 0 }: { color: string; delay?: number }) {
-  return (
-    <motion.div
-      style={{
-        position: "absolute", top: -20, left: -20,
-        width: 90, height: 90, borderRadius: "50%",
-        filter: "blur(22px)", backgroundColor: color,
-        pointerEvents: "none",
-      }}
-      animate={{ scale: [1, 1.5, 1], opacity: [0.25, 0.6, 0.25] }}
-      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay }}
-    />
-  );
-}
-
 /* ─── Animation helpers ──────────────────────────────────────────────────── */
 
 const fadeUp = (delay = 0) => ({
@@ -454,6 +437,7 @@ export default function Home() {
             <motion.div
               key={i}
               {...inView(i * 0.1)}
+              whileHover={{ y: -4, transition: { type: "spring", stiffness: 300, damping: 20 } }}
               style={{
                 display: "flex", flexDirection: "column", alignItems: "center",
                 textAlign: "center", padding: 24, borderRadius: 20,
@@ -489,7 +473,6 @@ export default function Home() {
               viewport={{ once: true }} transition={{ delay: 0.1 }}
               style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#F0FDFA", border: "1px solid #99F6E4", position: "relative", overflow: "hidden", cursor: "default" }}
             >
-              <GlowBlob color="#0D948840" delay={0} />
               <motion.div variants={iconVars}><Dumbbell style={{ width: 40, height: 40, color: "#0D9488" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#134E4A" }}>برامج التدريب المخصصة</h3>
               <p style={{ lineHeight: 1.7, color: "#115E59" }}>خطط تمرين فردية من مدربين معتمدين دولياً تناسب مستواك وأهدافك الشخصية</p>
@@ -501,7 +484,6 @@ export default function Home() {
               className="md:row-span-2"
               style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", position: "relative", overflow: "hidden", cursor: "default" }}
             >
-              <GlowBlob color="#D9770640" delay={1} />
               <motion.div variants={iconVars}><Apple style={{ width: 40, height: 40, color: "#D97706" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#78350F" }}>التغذية العلاجية</h3>
               <p style={{ lineHeight: 1.7, color: "#92400E" }}>أنظمة غذائية مخصصة وعلمية بإشراف أخصائيي التغذية المعتمدين الذين يفهمون احتياجات جسمك</p>
@@ -530,7 +512,6 @@ export default function Home() {
               viewport={{ once: true }} transition={{ delay: 0.3 }}
               style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#ECFDF5", border: "1px solid #A7F3D0", position: "relative", overflow: "hidden", cursor: "default" }}
             >
-              <GlowBlob color="#05966940" delay={0.5} />
               <motion.div variants={iconVars}><Activity style={{ width: 40, height: 40, color: "#059669" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#064E3B" }}>متابعة التقدم الأسبوعي</h3>
               <p style={{ lineHeight: 1.7, color: "#065F46" }}>تقارير تفصيلية ولوحة ذكية تعكس تطورك الحقيقي أسبوعاً بأسبوع</p>
@@ -542,7 +523,6 @@ export default function Home() {
               className="md:col-span-2"
               style={{ padding: 28, borderRadius: 24, display: "flex", flexDirection: "column", gap: 16, backgroundColor: "#F0FDFA", border: "1px solid #99F6E4", position: "relative", overflow: "hidden", cursor: "default" }}
             >
-              <GlowBlob color="#0D948830" delay={1.5} />
               <motion.div variants={iconVars}><BookOpen style={{ width: 40, height: 40, color: "#0D9488" }} /></motion.div>
               <h3 style={{ fontSize: 20, fontWeight: 900, color: "#134E4A" }}>مكتبة المحتوى الصحي</h3>
               <p style={{ lineHeight: 1.7, color: "#115E59" }}>مئات المقالات والفيديوهات التعليمية المتخصصة لبناء عادات صحية واعية ومستدامة تدوم طوال العمر</p>
@@ -565,12 +545,9 @@ export default function Home() {
             boxShadow: "0 24px 64px rgba(6,78,59,0.35)",
           }}
         >
-          <motion.div animate={{ y: [-10, 10, -10], x: [-5, 8, -5] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            style={{ position: "absolute", top: 0, right: 0, width: 256, height: 256, borderRadius: "50%", backgroundColor: "#34D399", opacity: 0.10, transform: "translate(25%, -50%)", pointerEvents: "none" }} />
-          <motion.div animate={{ y: [10, -10, 10], x: [5, -8, 5] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            style={{ position: "absolute", bottom: 0, left: 0, width: 192, height: 192, borderRadius: "50%", backgroundColor: "#6EE7B7", opacity: 0.10, transform: "translate(-25%, 50%)", pointerEvents: "none" }} />
-          <motion.div animate={{ scale: [1, 1.25, 1], opacity: [0.04, 0.12, 0.04] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            style={{ position: "absolute", top: "50%", left: "50%", width: 320, height: 320, borderRadius: "50%", backgroundColor: "#A7F3D0", transform: "translate(-50%, -50%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: 0, right: 0, width: 256, height: 256, borderRadius: "50%", backgroundColor: "#34D399", opacity: 0.10, transform: "translate(25%, -50%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, width: 192, height: 192, borderRadius: "50%", backgroundColor: "#6EE7B7", opacity: 0.10, transform: "translate(-25%, 50%)", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: "50%", left: "50%", width: 320, height: 320, borderRadius: "50%", backgroundColor: "#A7F3D0", opacity: 0.07, transform: "translate(-50%, -50%)", pointerEvents: "none" }} />
 
           <div style={{ position: "relative", zIndex: 10 }}>
             <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", fontWeight: 900, color: "white", marginBottom: 16 }}>ابدأ تحولك الصحي اليوم</h2>
@@ -599,7 +576,7 @@ export default function Home() {
           FOOTER
       ══════════════════════════════════════════════════════════════ */}
       <footer style={{ padding: "48px 16px", backgroundColor: "#1C1917", color: "#A8A29E" }}>
-        <div className="max-w-5xl mx-auto">
+        <motion.div className="max-w-5xl mx-auto" {...inView(0)}>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
             <div>
               <h3 style={{ fontSize: 20, fontWeight: 900, marginBottom: 4, color: "white" }}>حياة نظيفة</h3>
@@ -614,7 +591,7 @@ export default function Home() {
           <div style={{ marginTop: 32, paddingTop: 24, textAlign: "center", fontSize: 14, borderTop: "1px solid #292524" }}>
             <p>© 2026 حياة نظيفة — جميع الحقوق محفوظة</p>
           </div>
-        </div>
+        </motion.div>
       </footer>
 
       {/* ══════════════════════════════════════════════════════════════

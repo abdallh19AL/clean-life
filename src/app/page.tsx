@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Star, Users, TrendingUp, Clock, Headphones,
   Activity, Dumbbell, Apple, BookOpen, Heart,
-  X, Volume2, VolumeX, Sparkles,
+  X, Sparkles,
   Home as HomeIcon, ShoppingBag, Calculator, HeartPulse,
 } from "lucide-react";
 import SiteNavbar from "@/components/SiteNavbar";
@@ -174,21 +174,13 @@ export default function Home() {
   const router = useRouter();
 
   /* Modal state */
-  const [aboutOpen, setAboutOpen]   = useState(false);
-  const [videoOpen, setVideoOpen]   = useState(false);
-  const [muted,     setMuted]       = useState(true);
-  const [videoError, setVideoError] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
-  /* Lock body scroll while any modal is open */
+  /* Lock body scroll while modal is open */
   useEffect(() => {
-    document.body.style.overflow = aboutOpen || videoOpen ? "hidden" : "auto";
+    document.body.style.overflow = aboutOpen ? "hidden" : "auto";
     return () => { document.body.style.overflow = "auto"; };
-  }, [aboutOpen, videoOpen]);
-
-  /* Reset video error each time the modal opens */
-  useEffect(() => {
-    if (videoOpen) setVideoError(false);
-  }, [videoOpen]);
+  }, [aboutOpen]);
 
   /* (dashboard 3-D scroll effect removed — expensive rotateX+boxShadow on scroll) */
 
@@ -276,7 +268,7 @@ export default function Home() {
           >
             <MagneticButton>
               <button
-                onClick={() => setVideoOpen(true)}
+                onClick={() => router.push("/dashboard")}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 8,
                   padding: "14px clamp(20px,5vw,32px)", borderRadius: 18,
@@ -556,7 +548,7 @@ export default function Home() {
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}>
               <MagneticButton>
-                <button onClick={() => setVideoOpen(true)}
+                <button onClick={() => router.push("/dashboard")}
                   style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "16px 32px", borderRadius: 18, backgroundColor: "white", color: "#064E3B", fontWeight: 700, fontSize: 17, boxShadow: "0 4px 20px rgba(0,0,0,0.18)", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
                   ابدأ رحلتك <ArrowLeft style={{ width: 20, height: 20 }} />
                 </button>
@@ -740,7 +732,7 @@ export default function Home() {
 
               {/* CTA */}
               <button
-                onClick={() => { setAboutOpen(false); setVideoOpen(true); }}
+                onClick={() => router.push("/dashboard")}
                 style={{
                   width: "100%", padding: "14px 24px", borderRadius: 14,
                   backgroundColor: "transparent", border: "2px solid #2D6A4F",
@@ -755,104 +747,6 @@ export default function Home() {
                 ابدأ رحلتك معنا ←
               </button>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ══════════════════════════════════════════════════════════════
-          MODAL 2 — Cinematic Video (FIX 3: gradient fallback)
-      ══════════════════════════════════════════════════════════════ */}
-      <AnimatePresence>
-        {videoOpen && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{
-              position: "fixed", inset: 0,
-              backgroundColor: "rgba(0,0,0,0.92)",
-              zIndex: 300,
-              display: "flex", flexDirection: "column",
-              alignItems: "center", justifyContent: "center",
-              direction: "rtl", fontFamily: "'Cairo','Segoe UI',sans-serif",
-            }}
-          >
-            {/* Close */}
-            <button
-              onClick={() => setVideoOpen(false)}
-              style={{
-                position: "absolute", top: 24, left: 24,
-                width: 40, height: 40, borderRadius: "50%",
-                backgroundColor: "rgba(255,255,255,0.10)",
-                border: "none", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                transition: "background 0.15s", zIndex: 10,
-              }}
-              onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.20)")}
-              onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.backgroundColor = "rgba(255,255,255,0.10)")}
-            >
-              <X size={20} color="white" />
-            </button>
-
-
-            {/* Video / fallback container */}
-            <motion.div
-              initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.85, opacity: 0 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              style={{
-                width: "90%", maxWidth: 900,
-                aspectRatio: "16 / 9",
-                borderRadius: 16, overflow: "hidden",
-                position: "relative",
-                boxShadow: "0 40px 100px rgba(0,0,0,0.5)",
-              }}
-            >
-              {/* YouTube embed */}
-              <iframe
-                src="https://www.youtube.com/embed/V7JFuRFJFV8?autoplay=1&mute=1&loop=1&playlist=V7JFuRFJFV8&controls=0&showinfo=0&rel=0"
-                style={{ width: "100%", height: "100%", border: "none", borderRadius: 16 }}
-                allow="autoplay; fullscreen"
-                allowFullScreen
-              />
-              {/* Gradient overlay */}
-              <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0, height: 200,
-                background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)",
-                pointerEvents: "none",
-              }} />
-              {/* Text overlay */}
-              <div style={{
-                position: "absolute", bottom: 40, left: "50%",
-                transform: "translateX(-50%)",
-                textAlign: "center", zIndex: 2, width: "100%",
-              }}>
-                <p style={{ color: "rgba(255,255,255,0.7)", letterSpacing: "0.2em", fontSize: 12, fontWeight: 600 }}>
-                  ابدأ رحلة التحول
-                </p>
-                <p style={{ fontSize: 32, fontWeight: 900, color: "white", marginTop: 8 }}>
-                  حياتك تبدأ الآن
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Skip button */}
-            <div style={{ marginTop: 24 }}>
-              <MagneticButton>
-                <button
-                  onClick={() => router.push("/dashboard")}
-                  style={{
-                    padding: "14px 28px", borderRadius: 16,
-                    backgroundColor: "white", color: "#1B4332",
-                    fontWeight: 700, fontSize: 16,
-                    border: "none", cursor: "pointer",
-                    fontFamily: "inherit",
-                    boxShadow: "0 4px 20px rgba(0,0,0,0.30)",
-                  }}
-                >
-                  تخطي إلى لوحة التحكم ←
-                </button>
-              </MagneticButton>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>

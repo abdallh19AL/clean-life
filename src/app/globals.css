@@ -144,3 +144,23 @@
   display: inline-block;
   animation: gradientShift 6s linear infinite;
 }
+
+@keyframes scrollFade {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 1; }
+}
+
+@keyframes scrollDot {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(9px); }
+}
+
+.scroll-indicator-wrap {
+  animation: scrollFade 2.5s ease-in-out infinite;
+}
+
+.scroll-dot-animate {
+  animation: scrollDot 1.4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}

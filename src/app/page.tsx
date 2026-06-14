@@ -114,29 +114,22 @@ function FloatingOrbs() {
 
 function ScrollIndicator() {
   return (
-    <motion.div
+    <div
+      className="scroll-indicator-wrap"
       style={{
-        position: "absolute", bottom: 32, left: "50%", translateX: "-50%",
+        position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 6, zIndex: 10,
       }}
-      animate={{ opacity: [0.45, 1, 0.45] }}
-      transition={{ duration: 2.5, repeat: Infinity }}
     >
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <svg width="24" height="38" viewBox="0 0 24 38" fill="none">
-          <rect x="1" y="1" width="22" height="36" rx="11" stroke="#0D9488" strokeWidth="2" />
-          <motion.rect
-            x="11" y="7" width="2" height="7" rx="1" fill="#0D9488"
-            animate={{ y: [7, 16, 7] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </svg>
-      </motion.div>
+      <svg width="24" height="38" viewBox="0 0 24 38" fill="none">
+        <rect x="1" y="1" width="22" height="36" rx="11" stroke="#0D9488" strokeWidth="2" />
+        <rect
+          x="11" y="7" width="2" height="7" rx="1" fill="#0D9488"
+          className="scroll-dot-animate"
+        />
+      </svg>
       <p style={{ color: "#78716C", fontSize: 11, fontWeight: 600 }}>مرر للأسفل</p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -214,15 +207,7 @@ export default function Home() {
     if (videoOpen) setVideoError(false);
   }, [videoOpen]);
 
-  /* Dashboard 3-D scroll effect */
-  const dashboardRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: dashboardRef,
-    offset: ["start end", "center center"],
-  });
-  const rotateX = useTransform(scrollYProgress, [0, 1], [22, 0]);
-  const scale   = useTransform(scrollYProgress, [0, 1], [0.88, 1]);
-  const yOffset = useTransform(scrollYProgress, [0, 1], [60, 0]);
+  /* (dashboard 3-D scroll effect removed — expensive rotateX+boxShadow on scroll) */
 
   /* Hero parallax */
   const heroRef = useRef<HTMLElement>(null);
@@ -346,7 +331,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════════════════════
           MINI DASHBOARD PREVIEW
       ══════════════════════════════════════════════════════════════ */}
-      <section ref={dashboardRef} style={{ padding: "80px 16px", overflow: "hidden", backgroundColor: "#F7F3EC" }}>
+      <section style={{ padding: "80px 16px", overflow: "hidden", backgroundColor: "#F7F3EC" }}>
         <motion.div {...inView(0)} style={{ textAlign: "center", maxWidth: 576, margin: "0 auto 56px" }}>
           <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.5rem)", fontWeight: 900, marginBottom: 12, color: "#1C1917" }}>
             لوحة تحكم ذكية بين يديك
@@ -356,12 +341,15 @@ export default function Home() {
           </p>
         </motion.div>
 
-        <div style={{ maxWidth: 768, margin: "0 auto", perspective: 1200 }}>
+        <div style={{ maxWidth: 768, margin: "0 auto" }}>
           <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] as const }}
             style={{
-              rotateX, scale, y: yOffset,
               borderRadius: 24, overflow: "hidden",
-              boxShadow: "0 40px 80px rgba(0,0,0,0.15)",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.10)",
             }}
           >
             <div style={{ backgroundColor: "#fff", border: "1px solid #E7E5E4" }}>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { localToday } from "@/utils/dateUtils";
 import { ArrowRight, CheckCircle, CalendarDays, Clock, FileText, Send } from "lucide-react";
 
 const SESSION_TYPES = ["استشارة غذائية", "مراجعة تقدم", "تدريب شخصي", "تحليل جسم"];
@@ -211,7 +212,7 @@ export default function BookAppointmentPage() {
                 <input
                   type="date"
                   value={date}
-                  min={new Date().toISOString().split("T")[0]}
+                  min={localToday()}
                   onChange={e => setDate(e.target.value)}
                   style={inputStyle}
                   onFocus={e => { e.target.style.borderColor = "#3D7A5E"; e.target.style.boxShadow = "0 0 0 3px rgba(61,122,94,0.08)"; }}

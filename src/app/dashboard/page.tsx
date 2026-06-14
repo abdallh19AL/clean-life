@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { updateStreak } from "@/utils/updateStreak";
+import { localToday, localYesterday } from "@/utils/dateUtils";
+import { getMembershipLevel } from "@/utils/membership";
 import { motion } from "framer-motion";
 import {
   Scale, Droplets, Flame, Clipboard, CalendarDays,
@@ -38,9 +41,6 @@ function getInitials(name: string) {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 }
 
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -244,6 +244,9 @@ export default function DashboardPage() {
   const [todayCups,     setTodayCups]     = useState<number | null>(null);
   const [dataLoading,   setDataLoading]   = useState(true);
   const [calorieGoal,   setCalorieGoal]   = useState<number | null>(null);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [lastLogDate,   setLastLogDate]   = useState<string | null>(null);
 
   // Quick log form
   const [logWeight,   setLogWeight]   = useState("");
@@ -254,7 +257,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const supabase = createClient();
-    const today = todayISO();
+    const today = localToday();
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -274,7 +277,7 @@ export default function DashboardPage() {
             .maybeSingle(),
           supabase
             .from("profiles")
-            .select("calorie_goal")
+            .select("calorie_goal, current_streak, longest_streak, last_log_date")
             .eq("id", user.id)
             .maybeSingle(),
         ]).then(([wRes, dRes, pRes]) => {
@@ -282,6 +285,9 @@ export default function DashboardPage() {
           if (dRes.data?.calories   != null) setTodayCalories(dRes.data.calories);
           if (dRes.data?.water_cups != null) setTodayCups(dRes.data.water_cups);
           setCalorieGoal(pRes.data?.calorie_goal ?? null);
+          if (pRes.data?.current_streak != null) setCurrentStreak(pRes.data.current_streak as number);
+          if (pRes.data?.longest_streak != null) setLongestStreak(pRes.data.longest_streak as number);
+          setLastLogDate((pRes.data?.last_log_date as string | null) ?? null);
           setDataLoading(false);
         });
       } else {
@@ -316,7 +322,7 @@ export default function DashboardPage() {
 
     setLogSaving(true);
     const supabase = createClient();
-    const today = todayISO();
+    const today = localToday();
     const ops: Promise<unknown>[] = [];
 
     if (logWeight !== "") {
@@ -342,6 +348,16 @@ export default function DashboardPage() {
     }
 
     await Promise.all(ops);
+    updateStreak(user.id);
+
+    // Optimistic streak update — mirrors updateStreak logic without the DB round-trip
+    if (lastLogDate !== today) {
+      const yesterday = localYesterday();
+      const newS = lastLogDate === yesterday ? currentStreak + 1 : 1;
+      setCurrentStreak(newS);
+      setLongestStreak(s => Math.max(s, newS));
+      setLastLogDate(today);
+    }
 
     // Optimistic update of displayed values
     if (logWeight   !== "") setTodayWeight(parseFloat(logWeight));
@@ -355,6 +371,16 @@ export default function DashboardPage() {
   }
 
   const hasLogInput = logWeight !== "" || logCalories !== "" || logCups !== "";
+
+  const membershipLevel = getMembershipLevel(currentStreak);
+  const loggedToday = !dataLoading && lastLogDate === localToday();
+  const streakMsg = loggedToday
+    ? currentStreak > 1
+      ? `أحسنت! ${currentStreak} يوم متواصل من الالتزام 💪`
+      : "سجّلت بياناتك اليوم — يوم البداية 🌱"
+    : currentStreak > 0
+      ? "سجّل بياناتك اليوم للحفاظ على سلسلتك 🔥"
+      : "سجّل بياناتك اليوم لتبدأ رحلة الالتزام ✨";
 
   return (
     <div style={{
@@ -507,6 +533,62 @@ export default function DashboardPage() {
           value={!dataLoading && todayCalories !== null ? `${todayCalories} سعرة`    : "-- سعرة"}
           sub={  !dataLoading && todayCalories !== null ? "مسجلة اليوم ✓"            : "يحدد بعد الاستشارة"}
         />
+      </motion.div>
+
+      {/* ── Streak + membership card ── */}
+      <motion.div
+        variants={fadeUp} initial="hidden" animate="visible"
+        transition={{ delay: 0.22, duration: 0.45, ease: "easeOut" }}
+        style={{ marginBottom: 24 }}
+      >
+        <div style={{
+          background: "rgba(255,255,255,0.92)", border: "1.5px solid rgba(190,175,155,0.20)",
+          borderRadius: 22, padding: "22px 28px", boxShadow: "0 2px 14px rgba(0,0,0,0.055)",
+          display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap",
+        }}>
+          {/* Streak count */}
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+              background: currentStreak > 0 ? "rgba(224,122,95,0.12)" : "rgba(190,175,155,0.10)",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
+            }}>
+              {currentStreak > 0 ? "🔥" : "🌱"}
+            </div>
+            <div>
+              <p style={{ fontSize: 11, color: "#aaa", fontWeight: 700, marginBottom: 2 }}>سلسلة الالتزام</p>
+              <p style={{ fontSize: 30, fontWeight: 900, color: "#1a1a1a", lineHeight: 1 }}>
+                {dataLoading ? "—" : currentStreak}
+                <span style={{ fontSize: 14, color: "#aaa", fontWeight: 600 }}> يوم</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Divider — hidden on small screens */}
+          <div className="hidden sm:block" style={{ width: 1, alignSelf: "stretch", minHeight: 40, backgroundColor: "rgba(190,175,155,0.22)", flexShrink: 0 }} />
+
+          {/* Level chip + longest streak + motivating message */}
+          <div style={{ flex: 1, minWidth: 180, display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                fontSize: 12, fontWeight: 800, padding: "5px 14px", borderRadius: 999,
+                backgroundColor: membershipLevel.bg, color: membershipLevel.color,
+                border: `1.5px solid ${membershipLevel.color}40`,
+              }}>
+                {membershipLevel.icon} {membershipLevel.label}
+              </span>
+              {!dataLoading && longestStreak > 0 && (
+                <span style={{ fontSize: 12, color: "#aaa", fontWeight: 600 }}>
+                  🏆 أفضل: {longestStreak} يوم
+                </span>
+              )}
+            </div>
+            {!dataLoading && (
+              <p style={{ fontSize: 13, color: "#555", fontWeight: 600, lineHeight: 1.5 }}>{streakMsg}</p>
+            )}
+          </div>
+        </div>
       </motion.div>
 
       {/* ── C: Quick Daily Log ── */}

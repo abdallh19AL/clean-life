@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import { getMembershipLevel } from "@/utils/membership";
 import {
   LayoutDashboard, TrendingUp, Utensils, Dumbbell, CalendarDays,
   X, Menu, User, Home, ShoppingBag, Calculator,
@@ -279,6 +280,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
 
+  const [sidebarName,   setSidebarName]   = useState("");
+  const [sidebarStreak, setSidebarStreak] = useState(0);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) return;
+      const name = (user.user_metadata?.full_name as string | undefined) || user.email?.split("@")[0] || "مستخدم";
+      setSidebarName(name);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("current_streak")
+        .eq("id", user.id)
+        .maybeSingle();
+      setSidebarStreak((prof?.current_streak as number | null) ?? 0);
+    });
+  }, []);
+
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -401,8 +420,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <User className="w-4 h-4 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-gray-900 text-sm font-bold truncate">أحمد</p>
-                <p className="text-teal-500 text-xs font-semibold truncate">عضو مميز</p>
+                <p className="text-gray-900 text-sm font-bold truncate">{sidebarName || "..."}</p>
+                {(() => {
+                  const level = getMembershipLevel(sidebarStreak);
+                  return (
+                    <p className="text-xs font-semibold truncate" style={{ color: level.color }}>
+                      {level.icon} {level.label}
+                    </p>
+                  );
+                })()}
               </div>
             </div>
             <button

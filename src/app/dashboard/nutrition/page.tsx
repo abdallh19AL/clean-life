@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Sun, Sunset, Moon, Droplets } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { updateStreak } from "@/utils/updateStreak";
+import { localToday } from "@/utils/dateUtils";
 import { useCalorieGoal } from "@/hooks/useCalorieGoal";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -73,7 +75,6 @@ function MacroBar({ label, grams, max, color }: { label: string; grams: number; 
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-function todayISO() { return new Date().toISOString().split("T")[0]; }
 
 export default function NutritionPage() {
   const [cups,          setCups]         = useState<boolean[]>(Array(8).fill(false));
@@ -93,7 +94,7 @@ export default function NutritionPage() {
         .from("daily_logs")
         .select("calories, water_cups")
         .eq("user_id", user.id)
-        .eq("date", todayISO())
+        .eq("date", localToday())
         .maybeSingle();
 
       if (data?.water_cups != null) {
@@ -113,9 +114,10 @@ export default function NutritionPage() {
       supabase
         .from("daily_logs")
         .upsert(
-          { user_id: userId, date: todayISO(), water_cups: count },
+          { user_id: userId, date: localToday(), water_cups: count },
           { onConflict: "user_id,date" }
         );
+      if (count > 0) updateStreak(userId);
     }
   }
 

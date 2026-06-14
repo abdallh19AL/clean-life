@@ -9,6 +9,7 @@ import {
   Globe, ChevronRight, Edit3, Save, X, Lock, Crown,
   AlertTriangle, CheckCircle, RefreshCw, Eye, EyeOff,
 } from "lucide-react";
+import { getMembershipLevel } from "@/utils/membership";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
@@ -167,6 +168,9 @@ export default function SettingsPage() {
   const [pwSaving,     setPwSaving]     = useState(false);
   const [pwMsg,        setPwMsg]        = useState<{ ok: boolean; text: string } | null>(null);
 
+  // Streak
+  const [currentStreak, setCurrentStreak] = useState(0);
+
   // Danger zone
   const [deletePhrase, setDeletePhrase] = useState("");
   const [deleteError,  setDeleteError]  = useState("");
@@ -186,10 +190,11 @@ export default function SettingsPage() {
 
         const { data: prof } = await supabase
           .from("profiles")
-          .select("height_cm")
+          .select("height_cm, current_streak")
           .eq("id", user.id)
           .maybeSingle();
-        if (prof?.height_cm != null) setHeightCm(String(prof.height_cm));
+        if (prof?.height_cm     != null) setHeightCm(String(prof.height_cm));
+        if (prof?.current_streak != null) setCurrentStreak(prof.current_streak as number);
       }
     })();
   }, []);
@@ -506,20 +511,28 @@ export default function SettingsPage() {
       <div>
         {/* Account info card */}
         <div style={{ ...CARD, padding: 24, marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
-            <div style={{
-              width: 52, height: 52, borderRadius: 16,
-              background: "linear-gradient(135deg, #D4A017, #F0C040)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 4px 16px rgba(212,160,23,0.30)",
-            }}>
-              <Crown size={26} color="white" />
-            </div>
-            <div>
-              <p style={{ fontSize: 18, fontWeight: 900, color: "#1a1a1a" }}>عضو مميز</p>
-              <p style={{ fontSize: 13, color: "#aaa" }}>Premium Member</p>
-            </div>
-          </div>
+          {(() => {
+            const level = getMembershipLevel(currentStreak);
+            return (
+              <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 20 }}>
+                <div style={{
+                  width: 52, height: 52, borderRadius: 16,
+                  background: level.bg,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 28,
+                  border: `2px solid ${level.color}30`,
+                }}>
+                  {level.icon}
+                </div>
+                <div>
+                  <p style={{ fontSize: 18, fontWeight: 900, color: "#1a1a1a" }}>{level.label}</p>
+                  <p style={{ fontSize: 13, color: "#aaa" }}>
+                    {currentStreak > 0 ? `${currentStreak} يوم متواصل 🔥` : "ابدأ رحلتك اليوم"}
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
           <p style={{ fontSize: 13, color: "#888", marginBottom: 4 }}>
             <span style={{ fontWeight: 700, color: "#555" }}>تاريخ التسجيل:</span> {created}
           </p>
@@ -864,15 +877,20 @@ export default function SettingsPage() {
                 {profile.fullName || "مستخدم"}
               </p>
               <p style={{ fontSize: 12, color: "#aaa", marginBottom: 10 }}>{profile.email}</p>
-              <span style={{
-                fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 999,
-                background: "linear-gradient(135deg, rgba(212,160,23,0.15), rgba(240,192,64,0.15))",
-                border: "1.5px solid rgba(212,160,23,0.30)",
-                color: "#C4900A",
-                display: "inline-flex", alignItems: "center", gap: 4,
-              }}>
-                <Crown size={11} /> عضو مميز
-              </span>
+              {(() => {
+                const level = getMembershipLevel(currentStreak);
+                return (
+                  <span style={{
+                    fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 999,
+                    backgroundColor: level.bg,
+                    border: `1.5px solid ${level.color}40`,
+                    color: level.color,
+                    display: "inline-flex", alignItems: "center", gap: 4,
+                  }}>
+                    {level.icon} {level.label}
+                  </span>
+                );
+              })()}
               {user?.created_at && (
                 <p style={{ fontSize: 11, color: "#ccc", marginTop: 8 }}>
                   عضو منذ {new Date(user.created_at).getFullYear()}

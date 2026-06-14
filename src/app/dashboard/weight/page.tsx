@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import { updateStreak } from "@/utils/updateStreak";
+import { localToday } from "@/utils/dateUtils";
 import { ArrowRight, Scale, TrendingDown, TrendingUp, Minus, CalendarDays } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,7 +30,7 @@ function formatDate(d: string) {
 
 export default function WeightPage() {
   const router = useRouter();
-  const today  = new Date().toISOString().split("T")[0];
+  const today  = localToday();
 
   const [userId,  setUserId]  = useState<string | null>(null);
   const [weight,  setWeight]  = useState("");
@@ -82,6 +84,9 @@ export default function WeightPage() {
       setSaving(false);
       return;
     }
+
+    // Only count today's entry toward the streak (backdated logs don't count)
+    if (date === today && userId) updateStreak(userId);
 
     // Update local history (replace or prepend)
     const newEntry: Entry = { date, weight_kg: parseFloat(weight) };

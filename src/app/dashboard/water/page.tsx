@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/utils/supabase/client";
+import { updateStreak } from "@/utils/updateStreak";
+import { localToday } from "@/utils/dateUtils";
 import { ArrowRight, Droplets, RotateCcw } from "lucide-react";
 
 const GOAL = 8;
@@ -17,17 +19,13 @@ function getMotivation(filled: number): { text: string; color: string; emoji: st
   return             { text: "أحسنت! وصلت لهدفك اليومي! 🎉", color: "#27AE60", emoji: "🏆" };
 }
 
-function todayISO() {
-  return new Date().toISOString().split("T")[0];
-}
-
 // Fire-and-forget upsert — UI updates optimistically
 function persistCups(userId: string, count: number) {
   const supabase = createClient();
   supabase
     .from("daily_logs")
     .upsert(
-      { user_id: userId, date: todayISO(), water_cups: count },
+      { user_id: userId, date: localToday(), water_cups: count },
       { onConflict: "user_id,date" }
     );
 }
@@ -49,7 +47,7 @@ export default function WaterPage() {
         .from("daily_logs")
         .select("water_cups")
         .eq("user_id", user.id)
-        .eq("date", todayISO())
+        .eq("date", localToday())
         .maybeSingle();
 
       if (data?.water_cups != null) {
@@ -71,7 +69,10 @@ export default function WaterPage() {
       : cups.map((v, idx) => idx <= i ? true : v);  // fill up to i
     setCups(newCups);
     const count = newCups.filter(Boolean).length;
-    if (userId) persistCups(userId, count);
+    if (userId) {
+      persistCups(userId, count);
+      if (count > 0) updateStreak(userId);
+    }
   }
 
   function reset() {

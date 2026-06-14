@@ -294,7 +294,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         backgroundImage: "url('/clinic-bg.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundAttachment: "fixed",
         backgroundColor: "#F5F2ED",
       }}
     >

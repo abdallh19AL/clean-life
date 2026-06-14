@@ -64,9 +64,7 @@ function formatCreatedAt(dateStr: string) {
 /* ─── Styled pieces ──────────────────────────────────────────────────────── */
 
 const CARD: React.CSSProperties = {
-  backgroundColor: "rgba(255,255,255,0.90)",
-  backdropFilter: "blur(14px)",
-  WebkitBackdropFilter: "blur(14px)",
+  backgroundColor: "rgba(255,255,255,0.97)",
   border: "1px solid rgba(190,175,155,0.22)",
   borderRadius: 20,
   boxShadow: "0 2px 16px rgba(80,60,30,0.07)",

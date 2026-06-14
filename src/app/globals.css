@@ -128,3 +128,19 @@
     @apply font-sans;
     }
 }
+
+@keyframes gradientShift {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.gradient-shift {
+  background: linear-gradient(90deg, #0D9488, #2D6A4F, #52B788, #0D9488);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
+  animation: gradientShift 6s linear infinite;
+}

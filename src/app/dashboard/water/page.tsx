@@ -117,8 +117,7 @@ export default function WaterPage() {
         initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
         style={{
-          backgroundColor: "rgba(255,255,255,0.88)",
-          backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+          backgroundColor: "rgba(255,255,255,0.96)",
           border: "1px solid rgba(190,175,155,0.22)",
           borderRadius: 24, padding: 28,
           boxShadow: "0 2px 16px rgba(80,60,30,0.07)",

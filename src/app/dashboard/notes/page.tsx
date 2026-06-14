@@ -27,9 +27,7 @@ const TAGS = [
 ];
 
 const CARD: React.CSSProperties = {
-  backgroundColor: "rgba(255,255,255,0.85)",
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
+  backgroundColor: "rgba(255,255,255,0.95)",
   border: "1px solid rgba(190,175,155,0.22)",
   borderRadius: 20,
   boxShadow: "0 2px 16px rgba(80,60,30,0.07)",

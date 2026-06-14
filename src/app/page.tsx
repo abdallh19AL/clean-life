@@ -97,15 +97,13 @@ function FloatingOrbs() {
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
       {ORBS.map((o, i) => (
-        <motion.div
+        <div
           key={i}
           style={{
             position: "absolute", width: o.size, height: o.size,
-            borderRadius: "50%", background: o.color, filter: "blur(72px)",
+            borderRadius: "50%", background: o.color,
             top: o.top, left: o.left,
           }}
-          animate={{ y: [0, o.dy[0], o.dy[1], 0], x: [0, o.dx[0], o.dx[1], 0] }}
-          transition={{ duration: o.dur, repeat: Infinity, ease: "easeInOut" }}
         />
       ))}
     </div>
@@ -288,21 +286,9 @@ export default function Home() {
           >
             نحت جسمك ورعايتك الصحية
             <br />
-            <motion.span
-              style={{
-                background: "linear-gradient(90deg, #0D9488, #2D6A4F, #52B788, #0D9488)",
-                backgroundSize: "200% auto",
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                color: "transparent",
-                display: "inline-block",
-              }}
-              animate={{ backgroundPosition: ["0% center", "100% center", "0% center"] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-            >
+            <span className="gradient-shift">
               بمعايير عالمية
-            </motion.span>
+            </span>
           </motion.h1>
 
           <motion.p

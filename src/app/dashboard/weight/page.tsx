@@ -13,9 +13,7 @@ type Entry = { date: string; weight_kg: number };
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const CARD: React.CSSProperties = {
-  backgroundColor: "rgba(255,255,255,0.88)",
-  backdropFilter: "blur(12px)",
-  WebkitBackdropFilter: "blur(12px)",
+  backgroundColor: "rgba(255,255,255,0.96)",
   border: "1px solid rgba(190,175,155,0.22)",
   borderRadius: 20,
   padding: 28,

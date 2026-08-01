@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/client";
 function FormInput({
   type, placeholder, value, onChange,
 }: {
-  type:        "email" | "password";
+  type:        "text" | "email" | "password";
   placeholder: string;
   value:       string;
   onChange:    (v: string) => void;
@@ -42,28 +42,33 @@ function FormInput({
 }
 
 /* ─── Page ──────────────────────────────────────────────────────────── */
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [fullName,   setFullName]   = useState("");
   const [email,      setEmail]      = useState("");
   const [password,   setPassword]   = useState("");
   const [isPending,  setIsPending]  = useState(false);
   const [error,      setError]      = useState("");
+  const [success,    setSuccess]    = useState(false);
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
     setError("");
     const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    const { error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+      },
+    });
     if (authError) {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      setError("تعذر إنشاء الحساب، تأكد من صحة البيانات");
       setIsPending(false);
     } else {
-      localStorage.removeItem('supabase.auth.token');
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('sb-')) localStorage.removeItem(key);
-      });
-      await new Promise(resolve => setTimeout(resolve, 500));
-      window.location.href = "/dashboard";
+      setSuccess(true);
+      setIsPending(false);
     }
   };
 
@@ -136,113 +141,127 @@ export default function LoginPage() {
         {/* ── Title + subtitle ──────────────────────────────────── */}
         <div style={{ marginBottom: 26 }}>
           <h1 style={{ fontSize: "1.6rem", fontWeight: 900, color: "#1A2E22", marginBottom: 7, lineHeight: 1.2 }}>
-            تسجيل الدخول
+            إنشاء حساب جديد
           </h1>
           <p style={{ fontSize: "0.875rem", color: "#6B7280", lineHeight: 1.65 }}>
-            أهلاً بك في عيادة Clean Life، أدخل بياناتك لمتابعة خطتك الصحية.
+            انضم إلى عيادة Clean Life وابدأ خطتك الصحية اليوم.
           </p>
         </div>
 
-        {/* ── Form ──────────────────────────────────────────────── */}
-        <form onSubmit={handleEmailLogin} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-
-          {/* Email */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
-              البريد الإلكتروني
-            </label>
-            <FormInput
-              type="email"
-              placeholder="example@email.com"
-              value={email}
-              onChange={setEmail}
-            />
+        {success ? (
+          <div style={{
+            padding:         "16px 18px",
+            borderRadius:    12,
+            backgroundColor: "#F0FDF4",
+            border:          "1px solid #BBF7D0",
+            fontSize:        "0.88rem",
+            fontWeight:      600,
+            color:           "#166534",
+            textAlign:       "center",
+            lineHeight:      1.7,
+          }}>
+            ✓ تم إنشاء الحساب بنجاح، تحقق من بريدك الإلكتروني لتفعيل الحساب.
           </div>
+        ) : (
+          <>
+            {/* ── Form ──────────────────────────────────────────── */}
+            <form onSubmit={handleEmailRegister} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
 
-          {/* Password */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {/* Label row */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
-                كلمة المرور
-              </label>
-              <a
-                href="#"
-                style={{
-                  fontSize:        "0.78rem",
+              {/* Full name */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
+                  الاسم الكامل
+                </label>
+                <FormInput
+                  type="text"
+                  placeholder="الاسم الكامل"
+                  value={fullName}
+                  onChange={setFullName}
+                />
+              </div>
+
+              {/* Email */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
+                  البريد الإلكتروني
+                </label>
+                <FormInput
+                  type="email"
+                  placeholder="example@email.com"
+                  value={email}
+                  onChange={setEmail}
+                />
+              </div>
+
+              {/* Password */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#3D5A4A" }}>
+                  كلمة المرور
+                </label>
+                <FormInput
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={setPassword}
+                />
+              </div>
+
+              {/* Error message */}
+              {error && (
+                <div style={{
+                  padding:         "10px 14px",
+                  borderRadius:    10,
+                  backgroundColor: "#FEF2F2",
+                  border:          "1px solid #FECACA",
+                  fontSize:        "0.84rem",
                   fontWeight:      600,
-                  color:           "#0D9488",
-                  textDecoration:  "none",
-                  transition:      "color 0.15s",
+                  color:           "#DC2626",
+                  textAlign:       "center",
+                }}>
+                  ⚠ {error}
+                </div>
+              )}
+
+              {/* Primary button */}
+              <button
+                type="submit"
+                disabled={isPending}
+                style={{
+                  width:           "100%",
+                  height:          48,
+                  borderRadius:    13,
+                  border:          "none",
+                  background:      "linear-gradient(135deg, #2D6A4F 0%, #3D9970 100%)",
+                  color:           "white",
+                  fontSize:        "0.95rem",
+                  fontWeight:      800,
+                  fontFamily:      "inherit",
+                  cursor:          isPending ? "not-allowed" : "pointer",
+                  opacity:         isPending ? 0.72 : 1,
+                  boxShadow:       "0 5px 20px rgba(45,106,79,0.28)",
+                  transition:      "transform 0.15s, box-shadow 0.15s, opacity 0.15s",
+                  marginTop:       4,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#0F766E")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#0D9488")}
+                onMouseEnter={(e) => { if (!isPending) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(45,106,79,0.34)"; }}}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 5px 20px rgba(45,106,79,0.28)"; }}
+                onMouseDown={(e)  => { if (!isPending) e.currentTarget.style.transform = "translateY(1px)"; }}
               >
-                نسيت كلمة المرور؟
-              </a>
-            </div>
-            <FormInput
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={setPassword}
-            />
-          </div>
-
-          {/* Error message */}
-          {error && (
-            <div style={{
-              padding:         "10px 14px",
-              borderRadius:    10,
-              backgroundColor: "#FEF2F2",
-              border:          "1px solid #FECACA",
-              fontSize:        "0.84rem",
-              fontWeight:      600,
-              color:           "#DC2626",
-              textAlign:       "center",
-            }}>
-              ⚠ {error}
-            </div>
-          )}
-
-          {/* Primary button */}
-          <button
-            type="submit"
-            disabled={isPending}
-            style={{
-              width:           "100%",
-              height:          48,
-              borderRadius:    13,
-              border:          "none",
-              background:      "linear-gradient(135deg, #2D6A4F 0%, #3D9970 100%)",
-              color:           "white",
-              fontSize:        "0.95rem",
-              fontWeight:      800,
-              fontFamily:      "inherit",
-              cursor:          isPending ? "not-allowed" : "pointer",
-              opacity:         isPending ? 0.72 : 1,
-              boxShadow:       "0 5px 20px rgba(45,106,79,0.28)",
-              transition:      "transform 0.15s, box-shadow 0.15s, opacity 0.15s",
-              marginTop:       4,
-            }}
-            onMouseEnter={(e) => { if (!isPending) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(45,106,79,0.34)"; }}}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 5px 20px rgba(45,106,79,0.28)"; }}
-            onMouseDown={(e)  => { if (!isPending) e.currentTarget.style.transform = "translateY(1px)"; }}
-          >
-            {isPending ? "جاري التحقق..." : "تسجيل الدخول"}
-          </button>
-        </form>
+                {isPending ? "جاري الإنشاء..." : "إنشاء حساب"}
+              </button>
+            </form>
+          </>
+        )}
 
         {/* ── Footer ────────────────────────────────────────────── */}
         <p style={{ textAlign: "center", fontSize: "0.845rem", color: "#6B7280", marginTop: 26, fontWeight: 500 }}>
-          ليس لديك حساب؟{" "}
+          لديك حساب بالفعل؟{" "}
           <Link
-            href="/register"
+            href="/login"
             style={{ color: "#0D9488", fontWeight: 700, textDecoration: "none" }}
             onMouseEnter={(e) => (e.currentTarget.style.textDecoration = "underline")}
             onMouseLeave={(e) => (e.currentTarget.style.textDecoration = "none")}
           >
-            إنشاء حساب جديد
+            تسجيل الدخول
           </Link>
         </p>
 
